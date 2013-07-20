@@ -1,0 +1,14 @@
+{
+   "alwaysLast": {
+      "description": "label d'option",
+      "message": "Toujours positionner les onglets en dernier lors de l'ouverture."
+   },
+   "bringToFront": {
+      "description": "label d'option",
+      "message": "Toujours s\u00E9lectionner les onglets lors de l'ouverture."
+   },
+   "desc": {
+      "description": "descriptiond de l'extension",
+      "message": "Ouvre les onglets en derni\u00E8re position et les s\u00E9lectionne."
+   }
+}

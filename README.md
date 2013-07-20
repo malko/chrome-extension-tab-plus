@@ -1,4 +1,9 @@
-chrome-extension-tab-plus
+chrome-extension: Tab+
 =========================
 
-Simple chrome extension to open new tabs at last position and focus them.
+Simple extension that add some basic tabs management feature.
+For now: 
+- open tab to last position
+- focus tab when opening
+
+options are configurable.

@@ -1,0 +1,14 @@
+{
+   "alwaysLast": {
+      "description": "option label",
+      "message": "Always put opening tabs to the latest position."
+   },
+   "bringToFront": {
+      "description": "option label",
+      "message": "Always bring opening tab to front."
+   },
+   "desc": {
+      "description": "extension description",
+      "message": "Open new tabs at last position and focus them."
+   }
+}
