@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head><title>Tab+ Options</title>
 <style type="text/css">
@@ -5,32 +6,11 @@ label{
 	display:block;
 }
 </style>
-<script type="text/javascript">
-function restore_options() {
-	var options = ['alwaysLast','bringToFront'],
-	i=0,l=options.length,container = document.getElementById('options');
-	for(i=0;i<l;i++){
-		var label = document.createElement('label'),
-		input = document.createElement('input'),
-		text  = document.createTextNode(chrome.i18n.getMessage(options[i]));
-		input.id = options[i];
-		input.type = 'checkbox';
-		input.onchange= function(){ localStorage['tab+'+this.id] = this.checked?1:'';};
-		container.appendChild(label);
-		label.appendChild(input);
-		label.appendChild(text);
-		if( localStorage['tab+'+input.id]){
-			input.checked = true;
-		}
-	}
-}
-</script>
+<script type="text/javascript" src="options.js"></script>
 </head>
-<body onload="restore_options()">
-
+<body>
 <h1>Tab+ Options</h1>
-<div><script type="text/javascript">localMsg("desc");</script></div>
-<div id="options">
-</div>
+<div id="desc"></div>
+<div id="options"></div>
 </body>
 </html>
