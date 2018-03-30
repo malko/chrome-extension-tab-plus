@@ -10,5 +10,13 @@
    "desc": {
       "description": "extension description",
       "message": "Open new tabs at last position and focus them."
+   },
+   "contextOpenBackground": {
+      "description": "context menu for opening tab in background",
+      "message": "open link in a new background tab"
+   },
+   "contextOpenForeground": {
+      "description": "context menu for opening tab in foreground",
+      "message": "open link in a new foreground tab"
    }
 }

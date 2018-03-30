@@ -1,22 +1,30 @@
 
 function restore_options() {
 	document.getElementById('desc').innerHTML = chrome.i18n.getMessage('desc');
-	var options = ['alwaysLast','bringToFront'],
-	i=0,l=options.length,container = document.getElementById('options');
-	for(i=0;i<l;i++){
-		var label = document.createElement('label'),
-		input = document.createElement('input'),
-		text  = document.createTextNode(chrome.i18n.getMessage(options[i]));
-		input.id = options[i];
+	const options = {
+		alwaysLast: function () { localStorage['tab+alwaysLast'] = this.checked ? 1 : '' },
+		bringToFront: function () {
+			localStorage['tab+bringToFront'] = this.checked ? 1 : '';
+			chrome.contextMenus.update("tab+contextOpen", {
+				title: chrome.i18n.getMessage(this.checked ? 'contextOpenBackground' : 'contextOpenForeground')
+			});
+		},
+	};
+	const container = document.getElementById('options');
+	Object.keys(options).forEach((option) => {
+		const label = document.createElement('label');
+		const input = document.createElement('input');
+		const text  = document.createTextNode(chrome.i18n.getMessage(option));
+		input.id = option;
 		input.type = 'checkbox';
-		input.onchange= function(){ localStorage['tab+'+this.id] = this.checked?1:'';};
+		input.onchange = options[option];
 		container.appendChild(label);
 		label.appendChild(input);
 		label.appendChild(text);
 		if( localStorage['tab+'+input.id]){
 			input.checked = true;
 		}
-	}
+	});
 }
 
 if(document.readyState.match(/complete|loaded|interactive/)){

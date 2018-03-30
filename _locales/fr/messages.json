@@ -8,7 +8,15 @@
       "message": "Toujours s\u00E9lectionner les onglets lors de l'ouverture."
    },
    "desc": {
-      "description": "descriptiond de l'extension",
+      "description": "description de l'extension",
       "message": "Ouvre les onglets en derni\u00E8re position et les s\u00E9lectionne."
+   },
+   "contextOpenBackground": {
+      "description": "menu contextuel d'ouverture d'un onglet en arrière plan",
+      "message": "ouvrir le lien dans un nouvel onglet en arrière plan"
+   },
+   "contextOpenForeground": {
+      "description": "menu contextuel d'ouverture d'un onglet au premier plan",
+      "message": "ouvrir le lien dans un nouvel onglet au premier plan"
    }
 }

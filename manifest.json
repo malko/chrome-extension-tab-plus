@@ -9,7 +9,7 @@
    },
    "name": "Tab+",
    "options_page": "options.html",
-   "permissions": [ "tabs" ],
+   "permissions": [ "tabs", "contextMenus"],
    "manifest_version": 2,
-   "version": "0.1.2.2"
+   "version": "0.1.3"
 }
