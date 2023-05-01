@@ -1,0 +1,22 @@
+{
+   "alwaysLast": {
+      "description": "option label",
+      "message": "Open tabbladen altijd op de vorige schermlocatie."
+   },
+   "bringToFront": {
+      "description": "option label",
+      "message": "Open geopende tabbladen altijd op de voorgrond."
+   },
+   "desc": {
+      "description": "extension description",
+      "message": "Open nieuwe tabbladen altijd op de vorige schermlocatie en focus ze."
+   },
+   "contextOpenBackground": {
+      "description": "context menu for opening tab in background",
+      "message": "Link openen op nieuw achtergrondtabblad"
+   },
+   "contextOpenForeground": {
+      "description": "context menu for opening tab in foreground",
+      "message": "Link openen op nieuw voorgrondtabblad"
+   }
+}
