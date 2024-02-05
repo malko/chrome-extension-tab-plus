@@ -9,7 +9,7 @@
    },
    "desc": {
       "description": "extension description",
-      "message": "Open new tabs at last position and focus them."
+      "message": "Open new tabs at last position and focus them. Allow to save/restore windows and tabs."
    },
    "contextOpenBackground": {
       "description": "context menu for opening tab in background",

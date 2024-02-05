@@ -9,8 +9,13 @@
    "icons": {
       "128": "icon.png"
    },
+   "action": {
+      "default_icon": {
+         "128": "icon.png"
+      }
+   },
    "name": "Tab+",
    "options_page": "options.html",
-   "permissions": [ "tabs", "contextMenus", "storage"],
+   "permissions": [ "tabs", "contextMenus", "storage" ],
    "version": "0.1.5"
 }
