@@ -2,7 +2,7 @@
 import htmlEntties from "../libs/htmlEntties.js"
 
 export class WindowTab extends HTMLElement {
-	constructor(/**@type{chrome.tabs.Tab}*/ tab) {
+	constructor(/**@type{import("../libs/index.d.ts").TabData}*/ tab) {
 		super()
 		this.attachShadow({ mode: "open" })
 		const iconUrl = tab.favIconUrl //? tab.favIconUrl : "chrome://favicon/" + tab.url
@@ -35,16 +35,21 @@ export class WindowTab extends HTMLElement {
 				text-overflow: ellipsis;
 				z-index: 2;
 			}
+			:host(:hover) .window-tab-title {
+				display: inline-block;
+			}
+			${
+				tab.windowId
+					? /*css*/ `
 			:host(:hover) {
 				background-color: var(--tab-hover-bg);
 				color: var(--tab-hover-fg);
 			}
-			:host(:hover) .window-tab-title {
-				display: inline-block;
-			}
 			:host(.active) {
 				background-color: var(--tab-active-bg);
 				color: var(--tab-active-fg);
+			}`
+					: ""
 			}
 			.window-tab-icon {
 				display: inline-flex;
@@ -72,11 +77,11 @@ export class WindowTab extends HTMLElement {
 	}
 
 	connectedCallback() {
-		this.addEventListener("mousedown", this.#clickHandler)
+		this._windowId && this.addEventListener("mousedown", this.#clickHandler)
 	}
 
 	disconnectedCallback() {
-		this.removeEventListener("mousedown", this.#clickHandler)
+		this._windowId && this.removeEventListener("mousedown", this.#clickHandler)
 	}
 
 	async #clickHandler(/**@type{MouseEvent}*/ evt) {

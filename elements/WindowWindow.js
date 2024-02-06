@@ -1,8 +1,10 @@
 //@ts-check
 import { SVGs } from "../assets/svgs.js"
+import { saveWindow, deleteWindow } from "../libs/db.js"
 import htmlEntties from "../libs/htmlEntties.js"
 import { WindowTab } from "./WindowTab.js"
 
+const getSessionTabId = async () => chrome.runtime.sendMessage("get-session-tab-id")
 const prevDflt = (handler) => (/**@type{MouseEvent}*/ evt) => {
 	evt.preventDefault()
 	evt.stopPropagation()
@@ -20,7 +22,7 @@ const setWindowState = async (/**@type{number|{id:number}}*/ windowOrWindowId, s
 }
 
 const grabFocus = async () => {
-	const sessionTabId = await chrome.runtime.sendMessage("get-session-tab-id")
+	const sessionTabId = await getSessionTabId()
 	chrome.tabs
 		.get(sessionTabId)
 		.then((tab) => chrome.windows.update(tab.windowId, { focused: true }))
@@ -63,7 +65,6 @@ const tabMapper = (/**@type{chrome.tabs.Tab}*/ tab) => {
 		url: status !== "complete" && pendingUrl ? pendingUrl : url,
 	}
 }
-
 export class WindowWindow extends HTMLElement {
 	#winCloseHandler
 	#winMaximizeHandler
@@ -71,14 +72,21 @@ export class WindowWindow extends HTMLElement {
 	#winNewTabHandler
 	#winFocusHandler
 	#winSaveHandler
-	constructor(/**@type{chrome.windows.Window}*/ window) {
+	static actionButtons = `
+	<button title="Save window" class="window-save"><img src="./assets/save.svg"></button>
+	<button title="Open a new tab" class="window-new-tab"><img src="./assets/tab-new.svg"></button>
+	<button title="Toggle minimized state" class="window-minimize"><img src="./assets/minimize.svg"></button>
+	<button title="Toggle maximized state" class="window-maximize"><img src="./assets/maximize.svg"></button>
+	<button title="Close the window" class="window-close"><img src="./assets/x.svg"></button>`
+	constructor(/**@type{import("../libs/index.js").WindowStoredData}}*/ windowData) {
 		super()
-		this._id = window.id
-		this.id = "window-" + window.id
-		this.className = `window ${window.state} ${window.incognito ? "incognito" : ""}`
+		this._id = windowData.id
+		this.id = "window-" + windowData.id
+		this.className = `window ${windowData.state} ${windowData.incognito ? "incognito" : ""}`
 		this.attachShadow({ mode: "open" })
 		this.shadowRoot.innerHTML = /*html*/ `
 			<style>
+				:host, * {box-sizing: border-box;}
 				:host{
 					display: flex;
 					flex-direction: column;
@@ -156,21 +164,20 @@ export class WindowWindow extends HTMLElement {
 			</style>
 			<div class="window-title">
 				<span>
-					${window.incognito ? SVGs.incognito : ""}
-					${window.tabs.length} tabs
+					${windowData.incognito ? SVGs.incognito : ""}
+					${windowData.tabs.length} tabs
 				</span>
 				<span class="window-actions">
-					<button title="Save window" class="window-save"><img src="./assets/save.svg"></button>
-					<button title="Open a new tab" class="window-new-tab"><img src="./assets/tab-new.svg"></button>
-					<button title="Toggle minimized state" class="window-minimize"><img src="./assets/minimize.svg"></button>
-					<button title="Toggle maximized state" class="window-maximize"><img src="./assets/maximize.svg"></button>
-					<button title="Close the window" class="window-close"><img src="./assets/x.svg"></button>
+					${
+						//@ts-expect-error
+						this.constructor?.actionButtons
+					}
 				</span>
 			</div>
 			<div class="window-tabs"></div>
 		`
 		this.tabsContainer = this.shadowRoot.querySelector(".window-tabs")
-		window.tabs.forEach((tab) => {
+		windowData.tabs.forEach((tab) => {
 			this.tabsContainer.appendChild(new WindowTab(tab))
 		})
 
@@ -197,10 +204,12 @@ export class WindowWindow extends HTMLElement {
 			chrome.windows.update(this._id, { focused: true }).catch(console.error)
 		})
 		this.#winSaveHandler = prevDflt(async (evt) => {
-			const win = await chrome.windows.get(this._id)
-			const tabs = (await chrome.tabs.query({ windowId: this._id })).map(tabMapper)
-			const data = { ...win, tabs }
-			console.log(JSON.stringify(data, null, 2))
+			const win = await chrome.windows.get(this._id, { populate: true })
+			const sessionTabId = await getSessionTabId()
+			win.tabs = win.tabs.filter((tab) => tab.id !== sessionTabId)
+			saveWindow(win).then(() => {
+				window.dispatchEvent(new Event("tab+session-window-saved"))
+			})
 		})
 	}
 
@@ -223,4 +232,44 @@ export class WindowWindow extends HTMLElement {
 	}
 }
 
+export class WindowSessionWindow extends WindowWindow {
+	static actionButtons = /*html*/ `
+		<button title="restore window" class="window-restore"><img src="./assets/restore.svg"></button>
+		<button title="delete window" class="window-delete"><img src="./assets/delete.svg"></button>
+	`
+	#winData
+	#restoreHandler
+	#deleteHandler
+	constructor(/**@type{import("../libs/index.js").WindowStoredData}*/ windowData) {
+		super(windowData)
+		this.#winData = windowData
+		this.#restoreHandler = quitHandler(() => {
+			const { id, tabs, state, top, left, height, width, ...rest } = this.#winData
+			/** @type{import("../libs/index.js").WindowCreateData} */
+			let createData = { ...rest, state }
+			if (state === "normal") {
+				createData = { ...createData, state, top, left, height, width }
+			}
+			chrome.windows.create({
+				...createData,
+				url: windowData.tabs.map((tab) => tab.url),
+			})
+		})
+		this.#deleteHandler = prevDflt(() => {
+			deleteWindow(this.#winData.id).then(() => {
+				window.dispatchEvent(new Event("tab+session-window-deleted"))
+			})
+		})
+	}
+	connectedCallback() {
+		this.shadowRoot.querySelector(".window-restore").addEventListener("click", this.#restoreHandler)
+		this.shadowRoot.querySelector(".window-delete").addEventListener("click", this.#deleteHandler)
+	}
+	disconnectedCallback() {
+		this.shadowRoot.querySelector(".window-restore").removeEventListener("click", this.#restoreHandler)
+		this.shadowRoot.querySelector(".window-delete").removeEventListener("click", this.#deleteHandler)
+	}
+}
+
 customElements.define("window-window", WindowWindow)
+customElements.define("window-session-window", WindowSessionWindow)

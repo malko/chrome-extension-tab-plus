@@ -1,7 +1,7 @@
 //@ts-check
-import { WindowTab } from "./elements/WindowTab.js"
-import { WindowWindow } from "./elements/WindowWindow.js"
+import { WindowWindow, WindowSessionWindow } from "./elements/WindowWindow.js"
 import { SVGs } from "./assets/svgs.js"
+import { getSavedWindows } from "./libs/db.js"
 const activesContainer = /**@type{HTMLDivElement}*/ (document.querySelector("#windowsActive"))
 const savedContainer = /**@type{HTMLDivElement}*/ (document.querySelector("#windowsSaved"))
 const sessionTabId = await chrome.runtime.sendMessage("get-session-tab-id")
@@ -50,7 +50,8 @@ const rerender = async ({ type: evtType, ...evtDetails }) => {
 		render({ type: evtType, ...evtDetails })
 	}, 250)
 }
-
+const isValidWindowType = (/**@type{{type?:chrome.windows.windowTypeEnum}}*/ { type }) =>
+	type === "normal" || type === "popup"
 const render = async ({ type: evtType, ...evtDetails }) => {
 	activesContainer.innerHTML = ""
 	savedContainer.innerHTML = ""
@@ -58,6 +59,8 @@ const render = async ({ type: evtType, ...evtDetails }) => {
 		.getAll({ populate: true })
 		.then((windows) => {
 			windows.forEach((win) => {
+				if (!isValidWindowType(win)) return
+				//@ts-expect-error
 				const winEl = new WindowWindow(win)
 				activesContainer.appendChild(winEl)
 			})
@@ -79,6 +82,14 @@ const render = async ({ type: evtType, ...evtDetails }) => {
 			activesContainer.appendChild(newWinButton)
 		})
 		.catch(console.error)
+	await getSavedWindows()
+		.then((windows) => {
+			windows.forEach((win) => {
+				const winEl = new WindowSessionWindow(win)
+				savedContainer.appendChild(winEl)
+			})
+		})
+		.catch(console.error)
 	return
 }
 
@@ -88,4 +99,5 @@ chrome.windows.onRemoved.addListener((winId) => rerender({ type: "window-remove"
 chrome.tabs.onCreated.addListener((tab) => rerender({ type: "tab-create", tabId: tab.id }))
 chrome.tabs.onRemoved.addListener((tabId, removeInfo) => rerender({ type: "tab-remove", tabId }))
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => rerender({ type: "tab-update", tabId }))
+window.addEventListener("tab+session-window-saved", rerender)
 export {}
