@@ -2,19 +2,31 @@
 import { WindowWindow, WindowSessionWindow } from "./elements/WindowWindow.js"
 import { SVGs } from "./assets/svgs.js"
 import { getSavedWindows } from "./libs/db.js"
+import { bindPageActions } from "./libs/bindPageActions.js"
 const activesContainer = /**@type{HTMLDivElement}*/ (document.querySelector("#windowsActive"))
 const savedContainer = /**@type{HTMLDivElement}*/ (document.querySelector("#windowsSaved"))
-const sessionTabId = await chrome.runtime.sendMessage("get-session-tab-id")
+const { sessionTabId, prevActiveTabId } = await chrome.runtime.sendMessage("get-session-tab-ids")
+const loadingSettings = await chrome.storage.local.get(["darkmode", "show-titles", "restore-discarded"])
 
+bindPageActions()
+/* #region new window */
+document.querySelector("header .actions-new")?.addEventListener("click", (evt) => {
+	//@ts-expect-error
+	const action = evt.target?.getAttribute("name")
+	if (!action) return
+	chrome.windows.create({ focused: true, incognito: action === "tabNewIncognito" })
+	window.close()
+})
+/* #endregion new window */
 /* #region Theme */
-const theme =
-	localStorage.getItem("theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+const darkMode =
+	"darkmode" in loadingSettings ? !!loadingSettings.darkmode : window.matchMedia("(prefers-color-scheme: dark)").matches
 const themeEl = /**@type{import("./elements/InputBoolean.js").InputBoolean}*/ (
 	document.querySelector("[name=theme-selector]")
 )
-themeEl.value = theme === "dark"
-const updateTheme = () => {
-	localStorage.setItem("theme", themeEl.checked ? "dark" : "light")
+themeEl.value = darkMode
+const updateTheme = async () => {
+	chrome.storage.local.set({ darkmode: themeEl.checked })
 	document.querySelector("html").classList.toggle("dark", themeEl.checked)
 	document.querySelector("html").classList.toggle("light", !themeEl.checked)
 }
@@ -22,17 +34,29 @@ themeEl.addEventListener("change", updateTheme)
 updateTheme()
 /* #endregion */
 /* #region show titles */
-const showTitles = localStorage.getItem("show-titles") === "true"
+const showTitles = !!loadingSettings["show-titles"]
 const showTitlesEl = /**@type{import("./elements/InputBoolean.js").InputBoolean}*/ (
 	document.querySelector("[name=show-titles-selector]")
 )
 const updateShowTitles = () => {
-	localStorage.setItem("show-titles", String(showTitlesEl.checked))
+	chrome.storage.local.set({ "show-titles": showTitlesEl.checked })
 	document.querySelector("html").classList.toggle("show-titles", showTitlesEl.checked)
 }
 showTitlesEl.addEventListener("change", updateShowTitles)
 showTitlesEl.value = showTitles
 updateShowTitles()
+/* #endregion */
+/* #region restore discarded */
+const restoreDiscarded = !!loadingSettings["restore-discarded"]
+const restoreDiscardedEl = /**@type{import("./elements/InputBoolean.js").InputBoolean}*/ (
+	document.querySelector("[name=restore-discarded]")
+)
+const updateRestoreDiscarded = () => {
+	chrome.storage.local.set({ "restore-discarded": restoreDiscardedEl.checked })
+}
+restoreDiscardedEl.addEventListener("change", updateRestoreDiscarded)
+restoreDiscardedEl.value = restoreDiscarded
+updateRestoreDiscarded()
 /* #endregion */
 
 let renderTimer = 0
@@ -60,26 +84,13 @@ const render = async ({ type: evtType, ...evtDetails }) => {
 		.then((windows) => {
 			windows.forEach((win) => {
 				if (!isValidWindowType(win)) return
+				win.tabs = win.tabs.filter((tab) => tab.id !== sessionTabId)
+				win.tabs.some((tab) => tab.id === prevActiveTabId && (tab.active = true))
 				//@ts-expect-error
 				const winEl = new WindowWindow(win)
+				win.focused && winEl.classList.add("focused")
 				activesContainer.appendChild(winEl)
 			})
-		})
-		.then(() => {
-			const newWinButton = document.createElement("div")
-			newWinButton.className = "window window-new"
-			newWinButton.innerHTML = /*html*/ `
-				<div class="window-title">New</div>
-				<div class="window-tabs" style="--stroke:var(--fg)">
-					<span class="window-tab" title="Window" data-action="tab">
-						${SVGs.tabNew}
-					</span>
-					<span class="window-tab" title="Incognito window" data-action="tab-incognito">
-						${SVGs.incognito}
-					</span>
-				</div>
-			`
-			activesContainer.appendChild(newWinButton)
 		})
 		.catch(console.error)
 	await getSavedWindows()
@@ -96,6 +107,7 @@ const render = async ({ type: evtType, ...evtDetails }) => {
 render({ type: "init" })
 chrome.windows.onCreated.addListener((win) => rerender({ type: "window-create", winId: win.id }))
 chrome.windows.onRemoved.addListener((winId) => rerender({ type: "window-remove", winId }))
+chrome.windows.onFocusChanged.addListener((winId) => rerender({ type: "window-focus", winId }))
 chrome.tabs.onCreated.addListener((tab) => rerender({ type: "tab-create", tabId: tab.id }))
 chrome.tabs.onRemoved.addListener((tabId, removeInfo) => rerender({ type: "tab-remove", tabId }))
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => rerender({ type: "tab-update", tabId }))

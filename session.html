@@ -4,101 +4,92 @@
 <title>Tab+ Sessions</title>
 <meta charset="utf-8">
 <style type="text/css">
-	:root {
-		--bg: #fff;
-		--fg: #333;
-		--border-color: #ccc;
-		--radius: .4rem;
-		--title-bg: #333;
-		--title-fg: #eee;
-		--tab-bg: var(--bg);
-		--tab-fg: var(--fg);
-		--tab-active-bg: #ffda61;
-		--tab-active-fg: var(--fg);
-		--tab-hover-bg: #eee;
-		--tab-hover-fg: var(--fg);
-		--input-boolean-color: #555;
-		--input-boolean-color-on: #000;
-		--input-boolean-bg: #ccc;
-		/* darkmode media query */
-		&.dark {
-			--bg: #333;
-			--fg: #eee;
-			--border-color: #444;
-			--title-bg: #555;
-			--title-fg: #eee;
-			--tab-bg: var(--bg);
-			--tab-fg: var(--fg);
-			--tab-active-bg: #ffda61;
-			--tab-active-fg: var(--fg);
-			--tab-hover-bg: #444;
-			--tab-hover-fg: var(--fg);
-			--input-boolean-color: #aaa;
-			--input-boolean-color-on: #fff;
-			--input-boolean-bg: #555;
-			
-		}
-		@media (prefers-color-scheme: dark) {
-			&:not(.light) {
-				--bg: #333;
-				--fg: #eee;
-				--border-color: #444;
-				--title-bg: #555;
-				--title-fg: #eee;
-				--tab-bg: var(--bg);
-				--tab-fg: var(--fg);
-				--tab-active-bg: #880;
-				--tab-active-fg: var(--fg);
-				--tab-hover-bg: #444;
-				--tab-hover-fg: var(--fg);
-			}
-		}
-	}
-	header{
-		padding: 0 1rem;
-	}
-	body {
-		background-color: var(--bg);
-		color: var(--fg);
-		font-family: Arial, sans-serif;
-		margin: 0;
-		padding: 0;
-		* {
-			box-sizing: border-box;
-		}
-	}
+	@import url("styles.css");
 	#windowsActive, #windowsSaved{
 		display: flex;
 		justify-content: flex-start;
 		flex-wrap: wrap;
+		padding: 1rem;
+		margin: 1rem;
+		border-radius: var(--radius);
+		&:before{
+			content: "Active Windows";
+			display: block;
+			width: 100%;
+			font-weight: bold;
+			margin-bottom: 1rem;
+		}
+	}
+	#windowsSaved {
+		background-color: var(--saved-bg);
+		border: 1px dashed var(--border-color);
+		&::before{
+			content: "Saved Windows";
+		}
+	}
+	#settings {
+		display: flex;
+		justify-content: space-between;
+		background-color: var(--header-bg);
+		align-items: center;
 	}
 	label {
 		display: inline-flex;
 		align-items: center;
 		gap: .2rem;
 		padding: .2rem;
-		margin: .2rem;
+		margin: 0 .2rem;
+	}
+	.actions-new {
+		position:relative;
+		top:1px;
+		right:-1rem;
+		padding:.4rem .4rem 1px .4rem; 
+		border-top-left-radius: var(--radius);
+		border-top-right-radius: var(--radius);
+		background-color: var(--bg);
+		border: solid var(--border-color) 1px;
+		border-bottom:none;
+		border-right:none;
 	}
 </style>
+<script type="module" src="./elements/TMsg.js"></script>
 <script type="module" src="./elements/InputBoolean.js"></script>
+<script type="module" src="./elements/ColorSvg.js"></script>
+<script type="module" src="./elements/PageFooter.js"></script>
 </head>
 <body>
 	<header>
 		<h1>Tab+ Sessions</h1>
-		<div>
-			<label>
-				☀ / 🌙
-				<input-boolean name="theme-selector"></input-boolean>
-			</label>
-			<label>
-				Show full page titles
+		<div id="settings">
+			<label title="msg:sessionShowPageTitle">
+				<color-svg name="grid"></color-svg>
 				<input-boolean name="show-titles-selector"></input-boolean>
+				<color-svg name="list" size="16px"></color-svg>
 			</label>
+			<label title="msg:sessionRestoreDiscarded">
+				<color-svg name="online" size="24px"></color-svg>
+				<input-boolean name="restore-discarded"></input-boolean>
+				<color-svg name="offline" size="24px"></color-svg>
+			</label>
+			<label title="msg:sessionDarkMode">
+				<color-svg name="sun"></color-svg>
+				<input-boolean name="theme-selector"></input-boolean>
+				<color-svg name="moon"></color-svg>
+			</label>
+			<div class="actions-new">
+				<color-svg name="tabNew" size="24px" title="create new window" ></color-svg>
+				<color-svg name="tabNewIncognito" size="24px" title="create new incognito window" ></color-svg>
+			</div>
+		</div>
+		<div class="actions">
+			<color-svg name="settings" size="24px" data-action="settings" title="msg:pageOptionTitle"></color-svg>
+			<color-svg name="quit" size="24px" data-action="session-close" title="msg:sessionCloseButton"></color-svg>
 		</div>
 	</header>
 	<div id="windowsActive"></div>
 	<div id="windowsSaved"></div>
-	<button>Close</button>
+	<page-footer></page-footer>
 	<script type="module" src="./session.js"></script>
 </body>
 </html>

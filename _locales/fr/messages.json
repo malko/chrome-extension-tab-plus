@@ -5,11 +5,11 @@
    },
    "bringToFront": {
       "description": "label d'option",
-      "message": "Toujours s\u00E9lectionner les onglets lors de l'ouverture."
+      "message": "Toujours sélectionner les onglets lors de l'ouverture."
    },
    "desc": {
       "description": "description de l'extension",
-      "message": "Ouvre les onglets en derni\u00E8re position et les s\u00E9lectionne."
+      "message": "Ouvre les onglets en dernière position et les sélectionne. Permet de sauvegarder/restaurer fenêtres et onglets."
    },
    "contextOpenBackground": {
       "description": "menu contextuel d'ouverture d'un onglet en arrière plan",
@@ -18,5 +18,75 @@
    "contextOpenForeground": {
       "description": "menu contextuel d'ouverture d'un onglet au premier plan",
       "message": "ouvrir le lien dans un nouvel onglet au premier plan"
+   },
+   "sessionShowPageTitle": {
+      "description": "label d'option",
+      "message": "Afficher le titre des pages"
+   },
+   "sessionRestoreDiscarded": {
+      "description": "label d'option",
+      "message": "Attendre l'activation pour charger les onglets restaurés"
+   },
+   "sessionDarkMode": {
+      "description": "label d'option",
+      "message": "mode sombre"
+   },
+   "sessionCloseButton": {
+      "description": "label du bouton close",
+      "message": "Fermer cette page"
+   },
+   "sessionSettingsLegend": {
+      "description": "session settings legend",
+      "message": "Options de sessions"
+   },
+   "tabCount": {
+      "description": "label nombre d'onglets <= 1",
+      "message": "$count$ onblet",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "tabCountPlural": {
+      "description": "label nombre d'onglets > 1",
+      "message": "$count$ onglets",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "tabSettingsLegend": {
+      "description": "tab settings legend",
+      "message": "Options de nouvel onglet"
+   },
+   "windowActionSave": {
+      "description": "window action title",
+      "message": "Sauvegarder la fenêtre"
+   },
+   "windowActionNewTab": {
+      "description": "window action title",
+      "message": "Ouvrir un nouvel onglet"
+   },
+   "windowActionDeleteSavedWindow": {
+      "description": "window action title",
+      "message": "Supprimer la fenêtre sauvegardée"
+   },
+   "windowActionRestore": {
+      "description": "window action title",
+      "message": "Restaurer la fenêtre"
+   },
+   "windowActionToggleMinimize": {
+      "description": "window action title",
+      "message": "Basculer l'état minimisé de la fenêtre"
+   },
+   "windowActionToggleMaximize": {
+      "description": "window action title",
+      "message": "Basculer l'état maximisé de la fenêtre"
+   },
+   "windowActionClose": {
+      "description": "window action title",
+      "message": "Fermer la fenêtre"
    }
 }

@@ -1,16 +1,54 @@
 <!DOCTYPE html>
 <html>
-<head><title>Tab+ Options</title>
-<style type="text/css">
-label{
-	display:block;
-}
-</style>
-<script type="text/javascript" src="options.js"></script>
+<head>
+	<title>Tab+ Options</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="styles.css">
+	<script type="module" src="elements/BooleanSettings.js"></script>
+	<script type="module" src="elements/TMsg.js"></script>
+	<script type="module" src="elements/PageFooter.js"></script>
+	<script type="module" src="options.js"></script>
+	<style>
+		p.desc {
+			margin: 1rem auto;
+			text-align:center;
+		}
+	</style>
 </head>
 <body>
-<h1>Tab+ Options</h1>
-<div id="desc"></div>
-<div id="options"></div>
+	<header>
+		<h1>Tab+ Options</h1>
+		<div class="actions">
+			<color-svg name="quit" size="24px" data-action="session-close" title="msg:sessionCloseButton"></color-svg>
+		</div>
+	</header>
+	<p class="desc"><t-msg>desc</t-msg></p>
+	<fieldset class="settings">
+		<legend><t-msg>tabSettingsLegend</t-msg></legend>
+		<boolean-settings key="bringToFront"></boolean-settings>
+		<boolean-settings key="alwaysLast"></boolean-settings>
+	</fieldset>
+	<fieldset class="settings">
+		<legend><t-msg>sessionSettingsLegend</t-msg></legend>
+		<boolean-settings 
+			key="show-titles"
+			msgId="sessionShowPageTitle"
+			beforeSvg="grid"
+			afterSvg="list"
+		></boolean-settings>
+		<boolean-settings
+			key="restore-discarded"
+			msgId="sessionRestoreDiscarded"
+			beforeSvg="online"
+			afterSvg="offline"
+		></boolean-settings>
+		<boolean-settings
+			key="darkmode"
+			msgId="sessionDarkMode"
+			beforeSvg="sun"
+			afterSvg="moon"
+		></boolean-settings>
+	</fieldset>
+	<page-footer></page-footer>
 </body>
 </html>

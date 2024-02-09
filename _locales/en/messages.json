@@ -18,5 +18,75 @@
    "contextOpenForeground": {
       "description": "context menu for opening tab in foreground",
       "message": "open link in a new foreground tab"
+   },
+   "sessionShowPageTitle": {
+      "description": "setting label",
+      "message": "Show page titles"
+   },
+   "sessionRestoreDiscarded": {
+      "description": "setting label",
+      "message": "Wait for activation to load restored tabs"
+   },
+   "sessionDarkMode": {
+      "description": "setting label",
+      "message": "Dark mode"
+   },
+   "sessionCloseButton": {
+      "description": "close button label",
+      "message": "Close this page"
+   },
+   "sessionSettingsLegend": {
+      "description": "session settings legend",
+      "message": "Session settings"
+   },
+   "tabCount": {
+      "description": "one or less tab count label",
+      "message": "$count$ tab",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "tabCountPlural": {
+      "description": "plural tab count label",
+      "message": "$count$ tabs",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "tabSettingsLegend": {
+      "description": "tab settings legend",
+      "message": "New Tab settings"
+   },
+   "windowActionSave": {
+      "description": "window action title",
+      "message": "Save window"
+   },
+   "windowActionNewTab": {
+      "description": "window action title",
+      "message": "Open new tab"
+   },
+   "windowActionDeleteSavedWindow": {
+      "description": "window action title",
+      "message": "Delete saved window"
+   },
+   "windowActionRestore": {
+      "description": "window action title",
+      "message": "Restore window"
+   },
+   "windowActionToggleMinimize": {
+      "description": "window action title",
+      "message": "Minimize window"
+   },
+   "windowActionToggleMaximize": {
+      "description": "window action title",
+      "message": "Maximize window"
+   },
+   "windowActionClose": {
+      "description": "window action title",
+      "message": "Close window"
    }
 }

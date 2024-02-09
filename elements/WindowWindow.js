@@ -1,9 +1,18 @@
 //@ts-check
 import { SVGs } from "../assets/svgs.js"
-import { saveWindow, deleteWindow } from "../libs/db.js"
+import { saveWindow, deleteWindow, windowToStoredWindow } from "../libs/db.js"
 import htmlEntties from "../libs/htmlEntties.js"
 import { WindowTab } from "./WindowTab.js"
 
+const actionsTitles = {
+	save: chrome.i18n.getMessage("windowActionSave"),
+	delete: chrome.i18n.getMessage("windowActionDeleteSavedWindow"),
+	newTab: chrome.i18n.getMessage("windowActionNewTab"),
+	restore: chrome.i18n.getMessage("windowActionRestore"),
+	minimize: chrome.i18n.getMessage("windowActionToggleMinimize"),
+	maximize: chrome.i18n.getMessage("windowActionToggleMaximize"),
+	close: chrome.i18n.getMessage("windowActionClose"),
+}
 const getSessionTabId = async () => chrome.runtime.sendMessage("get-session-tab-id")
 const prevDflt = (handler) => (/**@type{MouseEvent}*/ evt) => {
 	evt.preventDefault()
@@ -28,42 +37,16 @@ const grabFocus = async () => {
 		.then((tab) => chrome.windows.update(tab.windowId, { focused: true }))
 		.catch(console.error)
 }
-
-const tabMapper = (/**@type{chrome.tabs.Tab}*/ tab) => {
-	const {
-		active,
-		audible,
-		autoDiscardable,
-		discarded,
-		favIconUrl,
-		groupId,
-		highlighted,
-		id,
-		incognito,
-		index,
-		mutedInfo,
-		pinned,
-		status,
-		title,
-		url,
-		pendingUrl,
-	} = tab
-	return {
-		active,
-		audible,
-		autoDiscardable,
-		discarded,
-		favIconUrl,
-		groupId,
-		highlighted,
-		id,
-		incognito,
-		index,
-		mutedInfo,
-		pinned,
-		title,
-		url: status !== "complete" && pendingUrl ? pendingUrl : url,
-	}
+const groupColors = {
+	grey: "#dadce0",
+	blue: "#92b3f7",
+	red: "#e79184",
+	yellow: "#f8d767",
+	green: "#8dc795",
+	pink: "#f492cc",
+	purple: "#c08df8",
+	cyan: "#8bd6eb",
+	orange: "#f3b173",
 }
 export class WindowWindow extends HTMLElement {
 	#winCloseHandler
@@ -72,12 +55,12 @@ export class WindowWindow extends HTMLElement {
 	#winNewTabHandler
 	#winFocusHandler
 	#winSaveHandler
-	static actionButtons = `
-	<button title="Save window" class="window-save"><img src="./assets/save.svg"></button>
-	<button title="Open a new tab" class="window-new-tab"><img src="./assets/tab-new.svg"></button>
-	<button title="Toggle minimized state" class="window-minimize"><img src="./assets/minimize.svg"></button>
-	<button title="Toggle maximized state" class="window-maximize"><img src="./assets/maximize.svg"></button>
-	<button title="Close the window" class="window-close"><img src="./assets/x.svg"></button>`
+	static actionButtons = /* html */ `
+	<button title="${actionsTitles.save}" class="window-save"><color-svg name="save"></color-svg></button>
+	<button title="${actionsTitles.newTab}" class="window-new-tab"><color-svg name="tabNew"></color-svg></button>
+	<button title="${actionsTitles.minimize}" class="window-minimize"><color-svg name="minimize"></color-svg></button>
+	<button title="${actionsTitles.maximize}" class="window-maximize"><color-svg name="maximize"></color-svg></button>
+	<button title="${actionsTitles.close}" class="window-close"><color-svg name="x"></color-svg></button>`
 	constructor(/**@type{import("../libs/index.js").WindowStoredData}}*/ windowData) {
 		super()
 		this._id = windowData.id
@@ -95,7 +78,7 @@ export class WindowWindow extends HTMLElement {
 					flex-grow: 0;
 					flex-shrink: 1;
 					border: solid var(--border-color) 1px;
-					border-radius: var(--radius);
+					border-radius: calc(var(--radius) * 2);
 					padding: .5rem;
 					margin:.4rem;
 					max-width: 350px;
@@ -108,6 +91,16 @@ export class WindowWindow extends HTMLElement {
 				:host(.incognito) {
 					border-color: #f00;
 				}
+				:host(.focused) {
+					border-color: orange;
+					box-shadow: none;
+					box-shadow: 2px 2px 3px #000;
+				}
+				:host-context(#windowsSaved):host(:not(:hover)){
+						opacity:.6;
+						border-style: dashed;
+						box-shadow: none;
+				}
 				.window-title {
 					display: flex;
 					flex-wrap: nowrap;
@@ -119,14 +112,18 @@ export class WindowWindow extends HTMLElement {
 					margin: 0 0 .5rem 0;
 					background-color: var(--title-bg);
 					color: var(--title-fg);
-					border-radius: calc(var(--radius) / 2);
+					border-radius: var(--radius);
+				}
+				:host(window-window) {
+					cursor: pointer;
 				}
 				.window-title > span {
 					display: inline-flex;
 					gap: .2rem;
-					--stroke: var(--title-fg);
+					--svg-color: var(--title-fg);
 					flex-wrap: nowrap;
 					align-items: center;
+					white-space: nowrap;
 				}
 				.window-tabs {
 					display: flex;
@@ -141,31 +138,47 @@ export class WindowWindow extends HTMLElement {
 					padding-left: .5rem;
 				}
 				.window-actions button {
-					--size: 1.1rem;
+					--size:20px;
+					display:inline-flex;
+					box-sizing: border-box;
+					justify-content: center;
+					align-items: center;
 					width: var(--size);
 					height: var(--size);
 					border:none;
 					border-radius: 50%;
-					padding: .1rem;
-					background-color: #ccc8;
+					background-color: #fff8;
+					padding:0;
 				}
 				:host .window-actions button:hover{
 					opacity: 1;
 					background-color: #ffff;
 				}
-				.window-actions button > img {
-					width: 100%;
-					height: 100%;
-				}
 				:host(.maximized) .window-maximize,
 				:host(.minimized) .window-minimize {
 					opacity: .5;
 				}
+				window-tab[data-group-title]::before{
+					position: absolute;
+					display: block;
+					top: calc(-1rem - 2px);
+					left: -2px;
+					border-radius: inherit;
+					color: #000;
+					content: attr(data-group-title);
+					padding: .1rem;
+					font-size: .8rem;
+					background-color: var(--group-color, inherit);
+				}
+				:host-context(.show-titles) window-tab[data-group-title]{
+					margin-top:1rem;
+				}
 			</style>
 			<div class="window-title">
 				<span>
-					${windowData.incognito ? SVGs.incognito : ""}
-					${windowData.tabs.length} tabs
+					${windowData.incognito ? '<color-svg name="incognito"></color-svg>' : ""}
+					${windowData.name ? `<span>${windowData?.name} - </span>` : ""}
+					<t-msg msgId="tabCount${windowData.tabs.length > 1 ? "Plural" : ""}" params="${windowData.tabs.length}" ></t-msg>
 				</span>
 				<span class="window-actions">
 					${
@@ -177,9 +190,42 @@ export class WindowWindow extends HTMLElement {
 			<div class="window-tabs"></div>
 		`
 		this.tabsContainer = this.shadowRoot.querySelector(".window-tabs")
+		const groupTabs = {}
 		windowData.tabs.forEach((tab) => {
-			this.tabsContainer.appendChild(new WindowTab(tab))
+			const tabElmt = new WindowTab(tab)
+			if (tab.groupId > 0) {
+				tabElmt.dataset.groupId = "" + tab.groupId
+				;(groupTabs[tab.groupId] = groupTabs[tab.groupId] || []).push(tabElmt)
+			}
+			this.tabsContainer.appendChild(tabElmt)
 		})
+
+		// display groups info
+		;(async () => {
+			if (Object.keys(groupTabs).length > 0) {
+				let groupsData = []
+				// get groups info from windowData or from chrome.tabGroups
+				if (windowData.groups) {
+					groupsData = windowData.groups
+				} else {
+					groupsData = (await chrome.tabGroups.query({ windowId: windowData.id })).map((group) => {
+						const { color, title, id } = group
+						return { color: groupColors[color] || color, title, id }
+					})
+				}
+				//@ts-expect-error
+				groupsData.forEach(({ id, color, title }) => {
+					groupTabs[id].forEach((tabElmt, index) => {
+						if (index === 0) {
+							title && (tabElmt.dataset.groupTitle = title)
+							tabElmt.style.setProperty("--group-color", color)
+						}
+						tabElmt.style.boxShadow = `0 0 0 2px ${color}`
+						tabElmt.title = title
+					})
+				})
+			}
+		})()
 
 		const winToggleStateHandler = (stateName) =>
 			prevDflt(async (/**@type{MouseEvent}*/ evt) => {
@@ -208,7 +254,7 @@ export class WindowWindow extends HTMLElement {
 			const sessionTabId = await getSessionTabId()
 			win.tabs = win.tabs.filter((tab) => tab.id !== sessionTabId)
 			saveWindow(win).then(() => {
-				window.dispatchEvent(new Event("tab+session-window-saved"))
+				window.dispatchEvent(new CustomEvent("tab+session-window-saved"))
 			})
 		})
 	}
@@ -234,8 +280,8 @@ export class WindowWindow extends HTMLElement {
 
 export class WindowSessionWindow extends WindowWindow {
 	static actionButtons = /*html*/ `
-		<button title="restore window" class="window-restore"><img src="./assets/restore.svg"></button>
-		<button title="delete window" class="window-delete"><img src="./assets/delete.svg"></button>
+		<button title="${actionsTitles.restore}" class="window-restore"><color-svg name="restore"></color-svg></button>
+		<button title="${actionsTitles.delete}" class="window-delete"><color-svg name="delete"></color-svg></button>
 	`
 	#winData
 	#restoreHandler
@@ -243,21 +289,52 @@ export class WindowSessionWindow extends WindowWindow {
 	constructor(/**@type{import("../libs/index.js").WindowStoredData}*/ windowData) {
 		super(windowData)
 		this.#winData = windowData
-		this.#restoreHandler = quitHandler(() => {
-			const { id, tabs, state, top, left, height, width, ...rest } = this.#winData
+		this.#restoreHandler = prevDflt(async () => {
+			const settings = await chrome.storage.local.get(["restore-discarded"])
+			const restoreActive = !settings["restore-discarded"]
+			const { id, tabs, groups, state, top, left, height, width, ...rest } = this.#winData
+			const groupTabs = {}
 			/** @type{import("../libs/index.js").WindowCreateData} */
 			let createData = { ...rest, state }
 			if (state === "normal") {
 				createData = { ...createData, state, top, left, height, width }
 			}
-			chrome.windows.create({
-				...createData,
-				url: windowData.tabs.map((tab) => tab.url),
-			})
+			chrome.windows
+				.create({
+					...createData,
+				})
+				.then(async (windowInstance) => {
+					const windowId = windowInstance.id
+					const tabIdToRemove = windowInstance.tabs[0]?.id
+					await Promise.all(
+						tabs.map(async (tabData) => {
+							const { active, index, pinned, url, groupId } = tabData
+							const { id: tabId } = await chrome.tabs.create({
+								windowId,
+								active,
+								index,
+								pinned,
+								url: active || restoreActive ? url : "./discarded.html#" + url,
+							})
+							if (tabData.groupId > 0) {
+								groupTabs[groupId] = groupTabs[groupId] || []
+								groupTabs[groupId].push(tabId)
+							}
+							return
+						})
+					)
+					groups.forEach(async ({ id, collapsed, color, title }) => {
+						const groupId = await chrome.tabs.group({ createProperties: { windowId }, tabIds: groupTabs[id] })
+						chrome.tabGroups.update(groupId, { collapsed, color, title })
+					})
+					// remove the empty new tab
+					tabIdToRemove && chrome.tabs.remove(tabIdToRemove)
+				})
 		})
 		this.#deleteHandler = prevDflt(() => {
 			deleteWindow(this.#winData.id).then(() => {
-				window.dispatchEvent(new Event("tab+session-window-deleted"))
+				window.dispatchEvent(new CustomEvent("tab+session-window-deleted", { detail: { windowId: this.#winData.id } }))
+				this.remove()
 			})
 		})
 	}

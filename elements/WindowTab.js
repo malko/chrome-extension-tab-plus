@@ -5,7 +5,7 @@ export class WindowTab extends HTMLElement {
 	constructor(/**@type{import("../libs/index.d.ts").TabData}*/ tab) {
 		super()
 		this.attachShadow({ mode: "open" })
-		const iconUrl = tab.favIconUrl //? tab.favIconUrl : "chrome://favicon/" + tab.url
+		const iconUrl = tab.favIconUrl
 		this.id = `tab-${tab.id}`
 		this.classList.toggle("active", tab.active)
 		this.shadowRoot.innerHTML = /*html*/ `
@@ -16,7 +16,7 @@ export class WindowTab extends HTMLElement {
 				margin: 0;
 				cursor: pointer;
 				position: relative;
-				border-radius: calc(var(--radius) / 2);
+				border-radius: var(--radius);
 				border: solid var(--border-color) 1px;
 				align-items: center;
 				background-color: var(--tab-bg);
@@ -53,8 +53,8 @@ export class WindowTab extends HTMLElement {
 			}
 			.window-tab-icon {
 				display: inline-flex;
-				width:16px;
-				height:16px;
+				width:1rem;
+				height:1rem;
 				margin: 0 0;
 			}
 			:host-context(.show-titles){
@@ -69,7 +69,11 @@ export class WindowTab extends HTMLElement {
 				display: inline;
 			}
 			</style>
-			<img src="${iconUrl}" class="window-tab-icon" />
+			${
+				iconUrl
+					? `<img src="${iconUrl}" class="window-tab-icon" />`
+					: `<color-svg name="earth" style="opacity:.7"></color-svg>`
+			}
 			<span class="window-tab-title">${htmlEntties.encode(tab.title)}</span>
 		`
 		this._id = tab.id

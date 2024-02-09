@@ -43,6 +43,7 @@ chrome.tabs.onCreated.addListener(async (tab) => {
 	}
 })
 
+//#region contextMenu
 // add contextual menus
 chrome.storage.local.get("bringToFront", ({ bringToFront }) => {
 	chrome.contextMenus.removeAll()
@@ -73,26 +74,40 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 		}
 	}
 })
+//#endregion contextMenu
 
+//#region session management
 //-- session management related --//
-let sessionTab = null
+let sessionTabId = null
+let prevActiveTabId = null
 
 // bind onclick event to extension icon
 chrome.action.onClicked.addListener(async (tab) => {
-	sessionTab && (await chrome.tabs.remove(sessionTab.id))
-	sessionTab = await chrome.tabs.create({ url: "./session.html", active: true })
+	// if session tab is already open removeIt
+	sessionTabId && (await chrome.tabs.remove(sessionTabId).catch(() => {}))
+	if (prevActiveTabId && sessionTabId && sessionTabId === prevActiveTabId) {
+		prevActiveTabId = null
+	} else {
+		prevActiveTabId = tab.id
+	}
+	sessionTabId = (await chrome.tabs.create({ url: "./session.html", active: true })).id
 })
 // reset sessiontab when closed
-chrome.tabs.onRemoved.addListener((tab) => {
-	if (sessionTab?.id !== tab) {
+chrome.tabs.onRemoved.addListener((tabId) => {
+	if (sessionTabId !== tabId) {
 		return
 	}
-	sessionTab = null
+	if (prevActiveTabId) {
+		chrome.tabs.update(prevActiveTabId, { active: true }).catch(() => {})
+		prevActiveTabId = null
+	}
+	sessionTabId = null
 })
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 	switch (message) {
-		case "get-session-tab-id":
-			sendResponse(sessionTab?.id)
+		case "get-session-tab-ids":
+			sendResponse({ sessionTabId, prevActiveTabId })
 			break
 	}
 })
+//#endregion session management
