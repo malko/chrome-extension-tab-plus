@@ -35,6 +35,10 @@
       "description": "label du bouton close",
       "message": "Fermer cette page"
    },
+   "generalSettingsLegend": {
+      "description": "general settings legend",
+      "message": "Options générales"
+   },
    "sessionSettingsLegend": {
       "description": "session settings legend",
       "message": "Options de sessions"

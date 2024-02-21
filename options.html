@@ -24,9 +24,26 @@
 	</header>
 	<p class="desc"><t-msg>desc</t-msg></p>
 	<fieldset class="settings">
+		<legend><t-msg>GeneralSettingsLegend</t-msg></legend>
+		<boolean-settings
+			key="darkmode"
+			msgId="sessionDarkMode"
+			beforeSvg="sun"
+			afterSvg="moon"
+		></boolean-settings>
+	</fieldset>
+	<fieldset class="settings">
 		<legend><t-msg>tabSettingsLegend</t-msg></legend>
-		<boolean-settings key="bringToFront"></boolean-settings>
-		<boolean-settings key="alwaysLast"></boolean-settings>
+		<boolean-settings
+			key="bringToFront"
+			beforeSvg="no"
+			afterSvg="checkmark"
+		></boolean-settings>
+		<boolean-settings
+			key="alwaysLast"
+			beforeSvg="no"
+			afterSvg="checkmark"
+		></boolean-settings>
 	</fieldset>
 	<fieldset class="settings">
 		<legend><t-msg>sessionSettingsLegend</t-msg></legend>
@@ -41,12 +58,6 @@
 			msgId="sessionRestoreDiscarded"
 			beforeSvg="online"
 			afterSvg="offline"
-		></boolean-settings>
-		<boolean-settings
-			key="darkmode"
-			msgId="sessionDarkMode"
-			beforeSvg="sun"
-			afterSvg="moon"
 		></boolean-settings>
 	</fieldset>
 	<page-footer></page-footer>
