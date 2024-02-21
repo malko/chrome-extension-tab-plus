@@ -22,13 +22,13 @@ export class WindowTab extends HTMLElement {
 				display: flex;
 				padding: .4rem;
 				margin: 0;
-				cursor: pointer;
 				position: relative;
 				border-radius: var(--radius);
 				border: solid var(--border-color) 1px;
 				align-items: center;
 				background-color: var(--tab-bg);
 				color: var(--tab-fg);
+				cursor: ${tab.windowId ? "pointer" : "default"};
 			}
 			${
 				tab.windowId
