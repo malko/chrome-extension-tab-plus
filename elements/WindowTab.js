@@ -2,11 +2,19 @@
 import htmlEntties from "../libs/htmlEntties.js"
 
 export class WindowTab extends HTMLElement {
-	constructor(/**@type{import("../libs/index.d.ts").TabData}*/ tab) {
+	constructor(/**@type{import("../libs/index.d.ts").TabData|chrome.tabs.Tab}*/ tab) {
 		super()
+		this.tabData = tab
+		if (tab.groupId > 0) {
+			this.dataset.groupId = "" + tab.groupId
+		}
 		this.attachShadow({ mode: "open" })
 		const iconUrl = tab.favIconUrl
-		this.id = `tab-${tab.id}`
+		if (tab.id) {
+			this.id = `tab-${tab.id}`
+			this.hasAttribute("tabindex") || this.setAttribute("tabindex", "0")
+			tab.windowId && this.setAttribute("draggable", "true")
+		}
 		this.classList.toggle("active", tab.active)
 		this.shadowRoot.innerHTML = /*html*/ `
 			<style>
@@ -21,22 +29,6 @@ export class WindowTab extends HTMLElement {
 				align-items: center;
 				background-color: var(--tab-bg);
 				color: var(--tab-fg);
-			}
-			.window-tab-title {
-				position: absolute;
-				display: none;
-				white-space: nowrap;
-				background-color: inherit;
-				color: inherit;
-				border-radius: var(--radius);
-				padding: .2rem;
-				left: 0;
-				top: calc(100% + .2rem);
-				text-overflow: ellipsis;
-				z-index: 2;
-			}
-			:host(:hover) .window-tab-title {
-				display: inline-block;
 			}
 			${
 				tab.windowId
@@ -57,14 +49,26 @@ export class WindowTab extends HTMLElement {
 				height:1rem;
 				margin: 0 0;
 			}
+			.window-tab-title {
+				position: absolute;
+				display: none;
+				white-space: nowrap;
+				color: inherit;
+				border-radius: var(--radius);
+				padding: .2rem;
+				left: 0;
+				top: calc(100% + .2rem);
+				overflow: hidden;
+				text-overflow: ellipsis;
+				z-index: 2;
+			}
+			
 			:host-context(.show-titles){
 				width: 100%;
 				flex-wrap: nowrap;
 				gap:.2rem;
 			}
 			:host-context(.show-titles) .window-tab-title {
-				overflow: hidden;
-				text-overflow: ellipsis;
 				position: static;
 				display: inline;
 			}
@@ -72,20 +76,48 @@ export class WindowTab extends HTMLElement {
 			${
 				iconUrl
 					? `<img src="${iconUrl}" class="window-tab-icon" />`
-					: `<color-svg name="earth" style="opacity:.7"></color-svg>`
+					: `<color-svg name="earth" style="opacity:${iconUrl === null ? 0 : 0.7}"></color-svg>`
 			}
 			<span class="window-tab-title">${htmlEntties.encode(tab.title)}</span>
 		`
+		this.title = tab.title
 		this._id = tab.id
 		this._windowId = tab.windowId
 	}
 
 	connectedCallback() {
-		this._windowId && this.addEventListener("mousedown", this.#clickHandler)
+		if (!this._windowId) {
+			return
+		}
+		this.setAttribute("draggable", "true")
+		this.addEventListener("dragstart", this.#dragstartHandler)
+		this.addEventListener("dragend", this.#dragendHandler)
+		this.addEventListener("click", this.#clickHandler)
+		this.addEventListener("mousedown", this.#middleClickHandler)
 	}
 
 	disconnectedCallback() {
-		this._windowId && this.removeEventListener("mousedown", this.#clickHandler)
+		if (!this._windowId) {
+			return
+		}
+		this.removeEventListener("dragstart", this.#dragstartHandler)
+		this.removeEventListener("dragend", this.#dragendHandler)
+		this.removeEventListener("click", this.#clickHandler)
+		this.removeEventListener("mousedown", this.#middleClickHandler)
+	}
+
+	async #dragstartHandler(/**@type{DragEvent}*/ evt) {
+		evt.dataTransfer.setData("text/plain", JSON.stringify({ tabId: this._id, windowId: this._windowId }))
+		evt.dataTransfer.effectAllowed = "move"
+		evt.dataTransfer.dropEffect = "move"
+		// request animation frame to get the drop effect to work properly
+		requestAnimationFrame(() => (this.style.display = "none"))
+		this.parentElement.classList.add("dragging")
+	}
+
+	async #dragendHandler(/**@type{DragEvent}*/ evt) {
+		this.style.display = "flex"
+		this.parentElement.classList.remove("dragging")
 	}
 
 	async #clickHandler(/**@type{MouseEvent}*/ evt) {
@@ -93,14 +125,15 @@ export class WindowTab extends HTMLElement {
 		evt.preventDefault()
 		switch (evt.button) {
 			case 0: // left click select tab
-				window.close()
-				return Promise.all([
-					chrome.tabs.update(_id, { active: true }),
-					chrome.windows.update(_windowId, { focused: true }),
-				])
-			case 1: // middle click close selected tab
-				return chrome.tabs.remove(_id)
+				await chrome.runtime.sendMessage({ type: "switch-to-tab", id: _id, windowId: _windowId })
+				return window.close()
 		}
+	}
+	async #middleClickHandler(/**@type{MouseEvent}*/ evt) {
+		if (evt.button !== 1) return
+		const { _id } = this
+		evt.preventDefault()
+		return chrome.tabs.remove(_id)
 	}
 }
 customElements.define("window-tab", WindowTab)
