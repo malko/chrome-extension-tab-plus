@@ -3,7 +3,7 @@ import { InputBoolean } from "./InputBoolean.js"
 import { TMsg } from "./TMsg.js"
 import { ColorSvg } from "./ColorSvg.js"
 
-class BooleanSeettings extends HTMLElement {
+export class BooleanSettings extends HTMLElement {
 	/**@type {InputBoolean} */
 	#input
 	#key
@@ -18,15 +18,30 @@ class BooleanSeettings extends HTMLElement {
 		this.shadowRoot.innerHTML = `
 			<style>
 				:host, label {
-					display: flex;
-					width:100%;
+					display: inline-flex;
 					align-items: center;
 					justify-content: space-between;
 					gap: .2rem;
+					cursor: pointer;
+				}
+				:host-context(fieldset):host, :host-context(fieldset) label {
+					width: 100%;
 				}
 				label{
 					padding: .2rem;
 					margin: .2rem;
+				}
+				color-svg:first-child {
+					opacity: 1;
+				}
+				color-svg:first-child:has(+input-boolean[aria-checked=true]) {
+					opacity: .25;
+				}
+				input-boolean + color-svg {
+					opacity: .25;
+				}
+				input-boolean[aria-checked=true] + color-svg {
+					opacity: 1;
 				}
 			</style>
 			<label>
@@ -45,6 +60,12 @@ class BooleanSeettings extends HTMLElement {
 		this.#restoreSetting()
 		this.#changeHandler = async (e) => {
 			chrome.storage.local.set({ [this.#key]: e.target.checked })
+		}
+		if (this.hasAttribute("noLabel")) {
+			const label = this.shadowRoot.querySelector("t-msg")
+			//@ts-expect-error
+			this.title = label.innerText
+			label.remove()
 		}
 	}
 	async #restoreSetting() {
@@ -74,4 +95,4 @@ class BooleanSeettings extends HTMLElement {
 	}
 }
 
-customElements.define("boolean-settings", BooleanSeettings)
+customElements.define("boolean-settings", BooleanSettings)

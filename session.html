@@ -33,8 +33,7 @@
 		background-color: var(--header-bg);
 		align-items: center;
 	}
-	label {
-		display: inline-flex;
+	boolean-settings {
 		align-items: center;
 		gap: .2rem;
 		padding: .2rem;
@@ -54,29 +53,35 @@
 	}
 </style>
 <script type="module" src="./elements/TMsg.js"></script>
-<script type="module" src="./elements/InputBoolean.js"></script>
 <script type="module" src="./elements/ColorSvg.js"></script>
+<script type="module" src="./elements/BooleanSettings.js"></script>
 <script type="module" src="./elements/PageFooter.js"></script>
 </head>
 <body>
 	<header>
 		<h1>Tab+ Sessions</h1>
 		<div id="settings">
-			<label title="msg:sessionShowPageTitle">
-				<color-svg name="grid"></color-svg>
-				<input-boolean name="show-titles-selector"></input-boolean>
-				<color-svg name="list" size="16px"></color-svg>
-			</label>
-			<label title="msg:sessionRestoreDiscarded">
-				<color-svg name="online" size="24px"></color-svg>
-				<input-boolean name="restore-discarded"></input-boolean>
-				<color-svg name="offline" size="24px"></color-svg>
-			</label>
-			<label title="msg:sessionDarkMode">
-				<color-svg name="sun"></color-svg>
-				<input-boolean name="theme-selector"></input-boolean>
-				<color-svg name="moon"></color-svg>
-			</label>
+			<boolean-settings 
+				key="show-titles"
+				msgId="sessionShowPageTitle"
+				beforeSvg="grid"
+				afterSvg="list"
+				noLabel
+			></boolean-settings>
+			<boolean-settings
+				key="restore-discarded"
+				msgId="sessionRestoreDiscarded"
+				beforeSvg="online"
+				afterSvg="offline"
+				noLabel
+			></boolean-settings>
+			<boolean-settings
+				key="darkmode"
+				msgId="sessionDarkMode"
+				beforeSvg="sun"
+				afterSvg="moon"
+				noLabel
+			></boolean-settings>
 			<div class="actions-new">
 				<color-svg name="tabNew" size="24px" title="create new window" ></color-svg>
 				<color-svg name="tabNewIncognito" size="24px" title="create new incognito window" ></color-svg>

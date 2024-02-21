@@ -7,9 +7,10 @@ const activesContainer = /**@type{HTMLDivElement}*/ (document.querySelector("#wi
 const savedContainer = /**@type{HTMLDivElement}*/ (document.querySelector("#windowsSaved"))
 const { sessionTabId, prevActiveTabId } = await chrome.runtime.sendMessage({ type: "get-session-tab-ids" })
 const loadingSettings = await chrome.storage.local.get(["darkmode", "show-titles", "restore-discarded"])
+const rootElmt = document.querySelector("html")
 
 bindPageActions()
-/* #region new window */
+//#region new window
 document.querySelector("header .actions-new")?.addEventListener("click", (evt) => {
 	//@ts-expect-error
 	const action = evt.target?.getAttribute("name")
@@ -17,62 +18,29 @@ document.querySelector("header .actions-new")?.addEventListener("click", (evt) =
 	chrome.windows.create({ focused: true, incognito: action === "tabNewIncognito" })
 	window.close()
 })
-/* #endregion new window */
-/* #region Theme */
-const darkMode =
-	"darkmode" in loadingSettings ? !!loadingSettings.darkmode : window.matchMedia("(prefers-color-scheme: dark)").matches
-const themeEl = /**@type{import("./elements/InputBoolean.js").InputBoolean}*/ (
-	document.querySelector("[name=theme-selector]")
-)
-themeEl.value = darkMode
-const updateTheme = async () => {
-	chrome.storage.local.set({ darkmode: themeEl.checked })
-	document.querySelector("html").classList.toggle("dark", themeEl.checked)
-	document.querySelector("html").classList.toggle("light", !themeEl.checked)
-}
-themeEl.addEventListener("change", updateTheme)
-updateTheme()
-/* #endregion */
-/* #region show titles */
-const showTitles = !!loadingSettings["show-titles"]
-const showTitlesEl = /**@type{import("./elements/InputBoolean.js").InputBoolean}*/ (
-	document.querySelector("[name=show-titles-selector]")
-)
-const updateShowTitles = () => {
-	chrome.storage.local.set({ "show-titles": showTitlesEl.checked })
-	document.querySelector("html").classList.toggle("show-titles", showTitlesEl.checked)
-}
-showTitlesEl.addEventListener("change", updateShowTitles)
-showTitlesEl.value = showTitles
-updateShowTitles()
-/* #endregion */
-/* #region restore discarded */
-const restoreDiscarded = !!loadingSettings["restore-discarded"]
-const restoreDiscardedEl = /**@type{import("./elements/InputBoolean.js").InputBoolean}*/ (
-	document.querySelector("[name=restore-discarded]")
-)
-const updateRestoreDiscarded = () => {
-	chrome.storage.local.set({ "restore-discarded": restoreDiscardedEl.checked })
-}
-restoreDiscardedEl.addEventListener("change", updateRestoreDiscarded)
-restoreDiscardedEl.value = restoreDiscarded
-updateRestoreDiscarded()
-/* #endregion */
+//#endregion
 
-let renderTimer = 0
-const rerender = async ({ type: evtType, ...evtDetails }) => {
-	// avoid to rerender on this tab udpate
-	if (evtType === "tab-updated" && evtDetails.tabId === sessionTabId) {
-		return
-	}
-	// debounce tail call to render
-	if (renderTimer) {
-		clearTimeout(renderTimer)
-	}
-	renderTimer = setTimeout(() => {
-		renderTimer = 0
-		render({ type: evtType, ...evtDetails })
-	}, 250)
+//#region Theme
+const themeEl = /**@type{import("./elements/BooleanSettings.js").BooleanSettings}*/ (
+	document.querySelector("boolean-settings[key=darkmode]")
+)
+themeEl.addEventListener("change", () => {
+	rootElmt.classList.toggle("dark", themeEl.checked)
+	rootElmt.classList.toggle("light", !themeEl.checked)
+})
+"darkmode" in loadingSettings && rootElmt.classList.add(themeEl.checked ? "dark" : "light")
+//#endregion Theme
+
+//#region show titles
+const showTitlesEl = /**@type{import("./elements/BooleanSettings.js").BooleanSettings}*/ (
+	document.querySelector("boolean-settings[key=show-titles]")
+)
+showTitlesEl.addEventListener("change", () => {
+	rootElmt.classList.toggle("show-titles", showTitlesEl.checked)
+})
+loadingSettings["show-titles"] && rootElmt.classList.add("show-titles")
+//#endregion show titles
+
 }
 const isValidWindowType = (/**@type{{type?:chrome.windows.windowTypeEnum}}*/ { type }) =>
 	type === "normal" || type === "popup"
