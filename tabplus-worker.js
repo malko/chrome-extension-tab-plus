@@ -118,10 +118,22 @@ chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
 	sessionTabId = null
 })
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-	switch (message) {
+	switch (message.type) {
 		case "get-session-tab-ids":
 			sendResponse({ sessionTabId, prevActiveTabId })
 			break
+		case "switch-to-tab": {
+			const senderTab = sender.tab
+			const { id, windowId } = message
+			if (senderTab?.id === sessionTabId && windowId === senderTab.windowId) {
+				prevActiveTabId = null // avoid to restore previous active tab
+			}
+			Promise.all([
+				chrome.tabs.update(id, { active: true }),
+				chrome.windows.update(windowId, { focused: true }),
+			]).finally(sendResponse)
+			break
+		}
 	}
 })
 //#endregion session management

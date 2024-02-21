@@ -5,7 +5,7 @@ import { getSavedWindows } from "./libs/db.js"
 import { bindPageActions } from "./libs/bindPageActions.js"
 const activesContainer = /**@type{HTMLDivElement}*/ (document.querySelector("#windowsActive"))
 const savedContainer = /**@type{HTMLDivElement}*/ (document.querySelector("#windowsSaved"))
-const { sessionTabId, prevActiveTabId } = await chrome.runtime.sendMessage("get-session-tab-ids")
+const { sessionTabId, prevActiveTabId } = await chrome.runtime.sendMessage({ type: "get-session-tab-ids" })
 const loadingSettings = await chrome.storage.local.get(["darkmode", "show-titles", "restore-discarded"])
 
 bindPageActions()

@@ -13,7 +13,7 @@ const actionsTitles = {
 	maximize: chrome.i18n.getMessage("windowActionToggleMaximize"),
 	close: chrome.i18n.getMessage("windowActionClose"),
 }
-const getSessionTabId = async () => chrome.runtime.sendMessage("get-session-tab-id")
+const getSessionTabId = async () => (await chrome.runtime.sendMessage({ type: "get-session-tab-ids" }))?.sessionTabId
 const prevDflt = (handler) => (/**@type{MouseEvent}*/ evt) => {
 	evt.preventDefault()
 	evt.stopPropagation()

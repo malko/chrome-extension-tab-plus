@@ -2,7 +2,7 @@
 import { bindPageActions } from "./libs/bindPageActions.js"
 
 // close any opened session tab
-const { sessionTabId } = await chrome.runtime.sendMessage("get-session-tab-ids")
+const { sessionTabId } = await chrome.runtime.sendMessage({ type: "get-session-tab-ids" })
 sessionTabId && chrome.tabs.remove(sessionTabId)
 
 bindPageActions()
