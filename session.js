@@ -4,11 +4,13 @@ import { WindowTab } from "./elements/WindowTab.js"
 import { SVGs } from "./assets/svgs.js"
 import { getSavedWindows } from "./libs/db.js"
 import { bindPageActions } from "./libs/bindPageActions.js"
+import { keyMap } from "./libs/keyMaps.js"
+const rootElmt = document.querySelector("html")
 const activesContainer = /**@type{HTMLDivElement}*/ (document.querySelector("#windowsActive"))
 const savedContainer = /**@type{HTMLDivElement}*/ (document.querySelector("#windowsSaved"))
 const { sessionTabId, prevActiveTabId } = await chrome.runtime.sendMessage({ type: "get-session-tab-ids" })
-const loadingSettings = await chrome.storage.local.get(["darkmode", "show-titles", "restore-discarded"])
-const rootElmt = document.querySelector("html")
+const loadingSettings = await chrome.storage.local.get(["darkmode", "show-titles"])
+const searchInput = document.getElementById("search")
 
 bindPageActions()
 const relayout = () => {
@@ -49,6 +51,31 @@ showTitlesEl.addEventListener("change", () => {
 loadingSettings["show-titles"] && rootElmt.classList.add("show-titles")
 //#endregion show titles
 
+//#region search
+/**
+ * tagged template string to safely escape parameters when you compose your regexp strings
+ * example: ```new RegExp(regSafeString`^${param}`, 'i')``
+ */
+const regSafeString = (strings, ...params) =>
+	strings
+		.map((string, i) => string + (params[i] ? String(params[i]).replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&") : ""))
+		.join("")
+/** @returns {WindowTab[]} */
+const getTabsEl = () =>
+	Array.from(document.querySelectorAll("window-window, window-session-window")).reduce((acc, el) => {
+		acc.push(...el.shadowRoot.querySelectorAll("window-tab"))
+		return acc
+	}, [])
+searchInput?.addEventListener("input", (evt) => {
+	//@ts-expect-error
+	const query = evt.target.value
+	const queryRegExp = new RegExp(query.split("").join("[\\s\\S]*"), "i")
+	getTabsEl().forEach((element) => {
+		element.style.display = queryRegExp.test(element.title) ? "" : "none"
+	})
+	relayout()
+})
+//#endregion search
 const debounced = (fn, delay = 250) => {
 	let lastExec = 0
 	let timer = 0
@@ -214,4 +241,13 @@ chrome.tabs.onActivated.addListener((activeInfo) =>
 )
 window.addEventListener("tab+session-window-saved", rerender)
 window.addEventListener("resize", relayout)
+window.addEventListener(
+	"keydown",
+	keyMap(
+		{
+			"Ctrl+f": () => searchInput?.focus(),
+		},
+		{ preventDefault: true, stopPropagation: true }
+	)
+)
 export {}

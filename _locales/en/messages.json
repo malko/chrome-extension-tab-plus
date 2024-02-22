@@ -112,5 +112,9 @@
    "pageOptionTitle": {
       "description": "page option title",
       "message": "Extension settings"
+   },
+   "searchInputPlaceholder": {
+      "description": "search input placeholder",
+      "message": "Enter text to filter tabs titles"
    }
 }

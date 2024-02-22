@@ -55,6 +55,17 @@
 		border-bottom:none;
 		border-right:none;
 	}
+	label:has(#search) {
+		display: flex;
+		justify-content: center;
+		#search {
+			width: 80%;
+			padding: .5rem;
+			margin: 1rem 0;
+			border: solid var(--border-color) 1px;
+			border-radius: var(--radius);
+		}
+	}
 </style>
 <script type="module" src="./elements/TMsg.js"></script>
 <script type="module" src="./elements/ColorSvg.js"></script>
@@ -96,6 +107,10 @@
 			<color-svg name="quit" size="24px" data-action="session-close" title="msg:sessionCloseButton"></color-svg>
 		</div>
 	</header>
+	<label>
+		<input type="search" id="search" placeholder="msg:searchInputPlaceholder">
+		<color-svg name="search" size="24px"></color-svg>
+	</label>
 	<div id="windowsActive"></div>
 	<div id="windowsSaved"></div>
 	<page-footer></page-footer>

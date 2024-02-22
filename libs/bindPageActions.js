@@ -1,9 +1,14 @@
 import { SVGs } from "../assets/svgs.js"
+const msgAttributeReplacer = (attrName) => {
+	Array.from(document.querySelectorAll(`[${attrName}^="msg:"]`)).forEach(async (el) => {
+		el.setAttribute(attrName, await chrome.i18n.getMessage(el.getAttribute(attrName).replace(/^msg:/, "")))
+	})
+}
 export const bindPageActions = async () => {
 	/* replace title:msg */
-	Array.from(document.querySelectorAll('[title^="msg:"')).forEach(async (el) => {
-		el.setAttribute("title", await chrome.i18n.getMessage(el.getAttribute("title").replace(/^msg:/, "")))
-	})
+	msgAttributeReplacer("title")
+	/* replace placeholder:msg */
+	msgAttributeReplacer("placeholder")
 
 	/* page action buttons */
 	const quitButton = document.querySelector('header .actions [data-action="session-close"]')

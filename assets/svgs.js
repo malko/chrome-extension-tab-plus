@@ -74,6 +74,13 @@ export const SVGs = {
 </g>
 </svg>`,
 
+	magnify: `${svg24}
+<defs><style>.cls1{${noFill}${roundStroke}stroke-width:2.25;}</style></defs>
+<circle class="cls1" cx="9" cy="9" r="6"/>
+<path class="cls1" style="stroke-width:3.5" d="M14 14l5 5 "/>
+<path class="cls1" style="stroke-width:1.25" d="M6 8C5.5 10 7 12 9 12.4"/>
+</svg>`,
+
 	maximize: `${svg24}
 <path
 	style="stroke-width:2px;${roundStroke}${noFill}"
@@ -160,6 +167,10 @@ export const SVGs = {
 <path d="M11.193 1.623s1.74 4.026 1.615 6.724c-.193 3.15-1.66 6.73-1.66 6.73" style="${roundMiterStroke}${noFill}stroke-width:2.98072;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" transform="translate(.876 1.182)"/>
 <path d="M15.892 12.851c.057.897-5.694 4.947-6.453 4.542-.76-.403-1.232-7.766-.532-8.258.702-.494 6.926 2.818 6.984 3.715Z" style="${fill}fill-opacity:1;stroke-width:2.49068;${roundStroke}stroke-miterlimit:4;stroke-dasharray:none;paint-order:stroke fill markers;stop-color:var(--svg-color,#000)" transform="translate(.876 1.182)"/>
 </svg>`,
+
+	get search() {
+		return this.magnify
+	},
 
 	sun: `${svg24}
 <style>.cls1{${noFill}stroke-width:2;${roundStroke}stroke-miterlimit:10}</style>

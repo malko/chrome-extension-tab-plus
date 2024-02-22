@@ -112,5 +112,9 @@
    "pageOptionTitle": {
       "description": "page option title",
       "message": "Paramêtres de l'extension"
+   },
+   "searchInputPlaceholder": {
+      "description": "placeholder de l'input de recherche",
+      "message": "Entrer du texte pour filtrer les titres des onglets"
    }
 }

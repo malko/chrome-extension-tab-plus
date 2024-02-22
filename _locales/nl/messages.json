@@ -112,5 +112,9 @@
    "pageOptionTitle": {
       "description": "paginatitel optie",
       "message": "Extensie-instellingen"
+   },
+   "searchInputPlaceholder": {
+      "description": "placeholder voor zoekinvoer",
+      "message": "Voer tekst in om tabtitels te filteren"
    }
 }
