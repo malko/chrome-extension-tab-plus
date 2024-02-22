@@ -404,7 +404,11 @@ export class WindowSessionWindow extends WindowWindow {
 					tabIdToRemove && chrome.tabs.remove(tabIdToRemove)
 				})
 		})
-		this.#deleteHandler = prevDflt(() => {
+		this.#deleteHandler = prevDflt(async () => {
+			const askConfirmation = await chrome.storage.local
+				.get(["confirm-delete"])
+				.then((settings) => settings["confirm-delete"])
+			if (askConfirmation && !confirm(chrome.i18n.getMessage("sessionConfirmDeleteMessage"))) return
 			deleteWindow(this.#winData.id).then(() => {
 				window.dispatchEvent(new CustomEvent("tab+session-window-deleted", { detail: { windowId: this.#winData.id } }))
 				this.remove()

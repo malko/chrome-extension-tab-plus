@@ -84,11 +84,11 @@ let prevActiveTabId = null
 // bind onclick event to extension icon
 chrome.action.onClicked.addListener(async (tab) => {
 	const sessionTabIsActiveTab = tab.id === sessionTabId
-	// if session tab is already open removeIt
+	// if session tab is already open close it
 	if (sessionTabId) {
 		await chrome.tabs.remove(sessionTabId).catch(() => {})
 	}
-	// if the active tab is the session tab, just stop here
+	// if the active tab was the session tab, try to restore the previous active tab
 	if (sessionTabIsActiveTab) {
 		if (prevActiveTabId) {
 			chrome.tabs.update(prevActiveTabId, { active: true }).catch(() => {})
