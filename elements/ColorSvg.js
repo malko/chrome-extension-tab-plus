@@ -2,9 +2,13 @@
 import { SVGs } from "../assets/svgs.js"
 
 export class ColorSvg extends HTMLElement {
-	constructor() {
+	/**
+	 *
+	 * @param {{name?:string, size?:string, color?:string}} [param0]
+	 */
+	constructor({ name, size, color } = {}) {
 		super()
-		let name = this.getAttribute("name")
+		name || (name = this.getAttribute("name"))
 		if (!name || !(name in SVGs)) {
 			name = "broken"
 		}
@@ -15,8 +19,8 @@ export class ColorSvg extends HTMLElement {
         --svg-color: currentColor;
         display:inline-flex;
         align-self:center;
-        width: ${this.getAttribute("size") || "1rem"};
-        line-height:${this.getAttribute("size") || "1rem"};
+        width: ${size || this.getAttribute("size") || "1rem"};
+        line-height:${size || this.getAttribute("size") || "1rem"};
         margin:0 .2rem;
         padding:0;
       }
@@ -26,7 +30,7 @@ export class ColorSvg extends HTMLElement {
       }
     </style>
     ${SVGs[name]}`
-		const color = this.getAttribute("color")
+		color || (color = this.getAttribute("color"))
 		color && this.style.setProperty("--svg-color", color)
 	}
 }

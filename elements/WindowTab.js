@@ -1,5 +1,6 @@
 //@ts-check
 import htmlEntties from "../libs/htmlEntties.js"
+import { ColorSvg } from "./ColorSvg.js"
 
 export class WindowTab extends HTMLElement {
 	constructor(/**@type{import("../libs/index.d.ts").TabData|chrome.tabs.Tab}*/ tab) {
@@ -75,11 +76,18 @@ export class WindowTab extends HTMLElement {
 			</style>
 			${
 				iconUrl
-					? `<img src="${iconUrl}" class="window-tab-icon" />`
-					: `<color-svg name="earth" style="opacity:${iconUrl === null ? 0 : 0.7}"></color-svg>`
+					? `<img src="${iconUrl}" class="window-tab-icon"/>`
+					: `<color-svg name="earth" style="opacity:${iconUrl === null ? 0 : 1}"></color-svg>`
 			}
 			<span class="window-tab-title">${htmlEntties.encode(tab.title)}</span>
 		`
+		if (iconUrl) {
+			const icon = this.shadowRoot.querySelector(".window-tab-icon")
+			icon.addEventListener("error", () => {
+				icon.replaceWith(new ColorSvg({ name: "earth", color: "#888" }))
+			})
+		}
+
 		this.title = tab.title
 		this._id = tab.id
 		this._windowId = tab.windowId
