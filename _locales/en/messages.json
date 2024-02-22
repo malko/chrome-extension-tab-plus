@@ -1,15 +1,7 @@
 {
-   "alwaysLast": {
-      "description": "option label",
-      "message": "Always put opening tabs to the latest position."
-   },
-   "bringToFront": {
-      "description": "option label",
-      "message": "Always bring opening tab to front."
-   },
    "desc": {
       "description": "extension description",
-      "message": "Open new tabs at last position and focus them. Allow to save/restore windows and tabs."
+      "message": "This extension allows newly created tabs to be focused and puts them in the last position.\nIt also enables saving and restoring windows and tabs by clicking on the extension button or using the keyboard shortcut Ctrl+Shift+e."
    },
    "contextOpenBackground": {
       "description": "context menu for opening tab in background",
@@ -19,6 +11,30 @@
       "description": "context menu for opening tab in foreground",
       "message": "open link in a new foreground tab"
    },
+   "generalSettingsLegend": {
+      "description": "general settings legend",
+      "message": "General settings"
+   },
+   "generalDarkMode": {
+      "description": "setting label",
+      "message": "Dark mode"
+   },
+   "tabSettingsLegend": {
+      "description": "tab settings legend",
+      "message": "New Tab settings"
+   },
+   "alwaysLast": {
+      "description": "option label",
+      "message": "Always position tabs last when opening"
+   },
+   "bringToFront": {
+      "description": "option label",
+      "message": "Always select tabs when opening"
+   },
+   "sessionSettingsLegend": {
+      "description": "session settings legend",
+      "message": "Session settings"
+   },
    "sessionShowPageTitle": {
       "description": "setting label",
       "message": "Show page titles"
@@ -27,21 +43,17 @@
       "description": "setting label",
       "message": "Wait for activation to load restored tabs"
    },
-   "sessionDarkMode": {
+   "sessionConfirmDelete": {
       "description": "setting label",
-      "message": "Dark mode"
+      "message": "Ask user confirmation before deleting saved windows"
+   },
+   "sessionConfirmDeleteMessage": {
+      "description": "confirm delete window message",
+      "message": "Are you sure you want to delete this saved window?"
    },
    "sessionCloseButton": {
       "description": "close button label",
       "message": "Close this page"
-   },
-   "generalSettingsLegend": {
-      "description": "general settings legend",
-      "message": "General settings"
-   },
-   "sessionSettingsLegend": {
-      "description": "session settings legend",
-      "message": "Session settings"
    },
    "tabCount": {
       "description": "one or less tab count label",
@@ -61,10 +73,6 @@
          }
       }
    },
-   "tabSettingsLegend": {
-      "description": "tab settings legend",
-      "message": "New Tab settings"
-   },
    "windowActionSave": {
       "description": "window action title",
       "message": "Save window"
@@ -83,14 +91,26 @@
    },
    "windowActionToggleMinimize": {
       "description": "window action title",
-      "message": "Minimize window"
+      "message": "Toggle window minimize state"
    },
    "windowActionToggleMaximize": {
       "description": "window action title",
-      "message": "Maximize window"
+      "message": "Toggle window maximize state"
    },
    "windowActionClose": {
       "description": "window action title",
       "message": "Close window"
+   },
+   "pageActionNewWindow": {
+      "description": "page action for new window",
+      "message": "Create new window"
+   },
+   "pageActionNewIncognitoWindow": {
+      "description": "page action for new window",
+      "message": "Create new incognito window"
+   },
+   "pageOptionTitle": {
+      "description": "page option title",
+      "message": "Extension settings"
    }
 }

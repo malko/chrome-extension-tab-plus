@@ -1,22 +1,116 @@
 {
-   "alwaysLast": {
-      "description": "option label",
-      "message": "Open tabbladen altijd op de vorige schermlocatie."
-   },
-   "bringToFront": {
-      "description": "option label",
-      "message": "Open geopende tabbladen altijd op de voorgrond."
-   },
    "desc": {
-      "description": "extension description",
-      "message": "Open nieuwe tabbladen altijd op de vorige schermlocatie en focus ze."
+      "description": "beschrijving van de extensie",
+      "message": "Deze extensie zorgt ervoor dat nieuw gemaakte tabbladen de focus krijgen en plaatst ze op de laatste positie.\nHet maakt het ook mogelijk om vensters en tabbladen op te slaan en te herstellen door op de knop van de extensie te klikken of door de toetsenbordcombinatie Ctrl+Shift+e te gebruiken."
    },
    "contextOpenBackground": {
-      "description": "context menu for opening tab in background",
-      "message": "Link openen op nieuw achtergrondtabblad"
+      "description": "contextmenu voor het openen van een tabblad op de achtergrond",
+      "message": "open de link in een nieuw tabblad op de achtergrond"
    },
    "contextOpenForeground": {
-      "description": "context menu for opening tab in foreground",
-      "message": "Link openen op nieuw voorgrondtabblad"
+      "description": "contextmenu voor het openen van een tabblad op de voorgrond",
+      "message": "open de link in een nieuw tabblad op de voorgrond"
+   },
+   "generalSettingsLegend": {
+      "description": "algemene instellingen legende",
+      "message": "Algemene instellingen"
+   },
+   "generalDarkMode": {
+      "description": "label van de optie",
+      "message": "donkere modus"
+   },
+   "tabSettingsLegend": {
+      "description": "tabbladinstellingen legende",
+      "message": "Instellingen voor nieuw tabblad"
+   },
+   "alwaysLast": {
+      "description": "label van de optie",
+      "message": "Altijd tabbladen als laatste plaatsen bij het openen"
+   },
+   "bringToFront": {
+      "description": "label van de optie",
+      "message": "Altijd tabbladen selecteren bij het openen"
+   },
+   "sessionSettingsLegend": {
+      "description": "sessie-instellingen legende",
+      "message": "Sessie-instellingen"
+   },
+   "sessionShowPageTitle": {
+      "description": "label van de optie",
+      "message": "Paginatitels weergeven"
+   },
+   "sessionRestoreDiscarded": {
+      "description": "label van de optie",
+      "message": "Wachten met het laden van herstelde tabbladen totdat ze geactiveerd zijn"
+   },
+   "sessionConfirmDelete": {
+      "description": "label van de optie",
+      "message": "Bevestiging vragen voordat een opgeslagen venster wordt verwijderd"
+   },
+   "sessionConfirmDeleteMessage": {
+      "description": "bevestig verwijdering vensterbericht",
+      "message": "Weet je zeker dat je dit opgeslagen venster wilt verwijderen?"
+   },
+   "sessionCloseButton": {
+      "description": "label van de sluitknop",
+      "message": "Dit tabblad sluiten"
+   },
+   "tabCount": {
+      "description": "label aantal tabbladen <= 1",
+      "message": "$count$ tabblad",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "tabCountPlural": {
+      "description": "label aantal tabbladen > 1",
+      "message": "$count$ tabbladen",
+      "placeholders": {
+         "count": {
+            "content": "$1"
+         }
+      }
+   },
+   "windowActionSave": {
+      "description": "actie op venstertitel",
+      "message": "Venster opslaan"
+   },
+   "windowActionNewTab": {
+      "description": "actie op venstertitel",
+      "message": "Een nieuw tabblad openen"
+   },
+   "windowActionDeleteSavedWindow": {
+      "description": "actie op venstertitel",
+      "message": "Opgeslagen venster verwijderen"
+   },
+   "windowActionRestore": {
+      "description": "actie op venstertitel",
+      "message": "Venster herstellen"
+   },
+   "windowActionToggleMinimize": {
+      "description": "actie op venstertitel",
+      "message": "Minimaliseer/Maximaliseer venster"
+   },
+   "windowActionToggleMaximize": {
+      "description": "actie op venstertitel",
+      "message": "Maximaliseer/Minimaliseer venster"
+   },
+   "windowActionClose": {
+      "description": "actie op venstertitel",
+      "message": "Venster sluiten"
+   },
+   "pageActionNewWindow": {
+      "description": "pagina-actie om een nieuw venster te maken",
+      "message": "Een nieuw venster maken"
+   },
+   "pageActionNewIncognitoWindow": {
+      "description": "pagina-actie om een nieuw incognitovenster te maken",
+      "message": "Een nieuw incognitovenster maken"
+   },
+   "pageOptionTitle": {
+      "description": "paginatitel optie",
+      "message": "Extensie-instellingen"
    }
 }

@@ -1,15 +1,7 @@
 {
-   "alwaysLast": {
-      "description": "label d'option",
-      "message": "Toujours positionner les onglets en dernier lors de l'ouverture."
-   },
-   "bringToFront": {
-      "description": "label d'option",
-      "message": "Toujours sélectionner les onglets lors de l'ouverture."
-   },
    "desc": {
       "description": "description de l'extension",
-      "message": "Ouvre les onglets en dernière position et les sélectionne. Permet de sauvegarder/restaurer fenêtres et onglets."
+      "message": "Cette extension permet aux onglets nouvellement créés d'être mis au premier plan et de les placer en dernière position.\nElle permet également de sauvegarder et de restaurer les fenêtres et les onglets en cliquant sur le bouton de l'extension ou en utilisant le raccourci clavier Ctrl+Shift+e."
    },
    "contextOpenBackground": {
       "description": "menu contextuel d'ouverture d'un onglet en arrière plan",
@@ -19,6 +11,30 @@
       "description": "menu contextuel d'ouverture d'un onglet au premier plan",
       "message": "ouvrir le lien dans un nouvel onglet au premier plan"
    },
+   "generalSettingsLegend": {
+      "description": "general settings legend",
+      "message": "Options générales"
+   },
+   "generalDarkMode": {
+      "description": "label d'option",
+      "message": "mode sombre"
+   },
+   "tabSettingsLegend": {
+      "description": "tab settings legend",
+      "message": "Options de nouvel onglet"
+   },
+   "alwaysLast": {
+      "description": "label d'option",
+      "message": "Toujours positionner les onglets en dernier lors de l'ouverture"
+   },
+   "bringToFront": {
+      "description": "label d'option",
+      "message": "Toujours sélectionner les onglets lors de l'ouverture"
+   },
+   "sessionSettingsLegend": {
+      "description": "session settings legend",
+      "message": "Options de sessions"
+   },
    "sessionShowPageTitle": {
       "description": "label d'option",
       "message": "Afficher le titre des pages"
@@ -27,21 +43,17 @@
       "description": "label d'option",
       "message": "Attendre l'activation pour charger les onglets restaurés"
    },
-   "sessionDarkMode": {
+   "sessionConfirmDelete": {
       "description": "label d'option",
-      "message": "mode sombre"
+      "message": "Demander confirmation avant de supprimer une fenêtre sauvegardée"
+   },
+   "sessionConfirmDeleteMessage": {
+      "description": "message de confirmation de suppression de fenêtre",
+      "message": "Êtes-vous sûr de vouloir supprimer cette fenêtre sauvegardée ?"
    },
    "sessionCloseButton": {
       "description": "label du bouton close",
       "message": "Fermer cette page"
-   },
-   "generalSettingsLegend": {
-      "description": "general settings legend",
-      "message": "Options générales"
-   },
-   "sessionSettingsLegend": {
-      "description": "session settings legend",
-      "message": "Options de sessions"
    },
    "tabCount": {
       "description": "label nombre d'onglets <= 1",
@@ -61,36 +73,44 @@
          }
       }
    },
-   "tabSettingsLegend": {
-      "description": "tab settings legend",
-      "message": "Options de nouvel onglet"
-   },
    "windowActionSave": {
-      "description": "window action title",
+      "description": "action sur titre de fenêtre",
       "message": "Sauvegarder la fenêtre"
    },
    "windowActionNewTab": {
-      "description": "window action title",
+      "description": "action sur titre de fenêtre",
       "message": "Ouvrir un nouvel onglet"
    },
    "windowActionDeleteSavedWindow": {
-      "description": "window action title",
+      "description": "action sur titre de fenêtre",
       "message": "Supprimer la fenêtre sauvegardée"
    },
    "windowActionRestore": {
-      "description": "window action title",
+      "description": "action sur titre de fenêtre",
       "message": "Restaurer la fenêtre"
    },
    "windowActionToggleMinimize": {
-      "description": "window action title",
+      "description": "action sur titre de fenêtre",
       "message": "Basculer l'état minimisé de la fenêtre"
    },
    "windowActionToggleMaximize": {
-      "description": "window action title",
+      "description": "action sur titre de fenêtre",
       "message": "Basculer l'état maximisé de la fenêtre"
    },
    "windowActionClose": {
-      "description": "window action title",
+      "description": "action sur titre de fenêtre",
       "message": "Fermer la fenêtre"
+   },
+   "pageActionNewWindow": {
+      "description": "action de page pour créer une fenêtre",
+      "message": "Créer une nouvelle fenêtre"
+   },
+   "pageActionNewIncognitoWindow": {
+      "description": "action de page pour créer une fenêtre",
+      "message": "Créer une nouvelle fenêtre de navigation privée"
+   },
+   "pageOptionTitle": {
+      "description": "page option title",
+      "message": "Paramêtres de l'extension"
    }
 }
