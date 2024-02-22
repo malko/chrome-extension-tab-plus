@@ -11,6 +11,12 @@ const loadingSettings = await chrome.storage.local.get(["darkmode", "show-titles
 const rootElmt = document.querySelector("html")
 
 bindPageActions()
+const relayout = () => {
+	;[...activesContainer.children, ...savedContainer.children].forEach((element) => {
+		//@ts-expect-error
+		element.calculateGridRowEnd()
+	})
+}
 //#region new window
 document.querySelector("header .actions-new")?.addEventListener("click", (evt) => {
 	//@ts-expect-error
@@ -38,6 +44,7 @@ const showTitlesEl = /**@type{import("./elements/BooleanSettings.js").BooleanSet
 )
 showTitlesEl.addEventListener("change", () => {
 	rootElmt.classList.toggle("show-titles", showTitlesEl.checked)
+	relayout()
 })
 loadingSettings["show-titles"] && rootElmt.classList.add("show-titles")
 //#endregion show titles
@@ -94,6 +101,7 @@ const renderSavedWindows = debounced(async () => {
 const render = async ({ type: evtType, ...evtDetails }) => {
 	renderActiveWindows()
 	renderSavedWindows()
+	relayout()
 }
 
 const rerender = async (evt) => {
@@ -113,7 +121,8 @@ const rerender = async (evt) => {
 			return renderActiveWindows()
 		case "window-remove": {
 			const winEl = getWinEl()
-			return winEl ? winEl.remove() : renderActiveWindows()
+			winEl ? winEl.remove() : renderActiveWindows()
+			return relayout()
 		}
 		case "window-focus": {
 			if (evtDetails.winId === -1) return
@@ -134,7 +143,8 @@ const rerender = async (evt) => {
 		case "tab-detached":
 		case "tab-remove": {
 			const tabEl = getTabEl()
-			return tabEl ? tabEl.remove() : renderActiveWindows()
+			tabEl ? tabEl.remove() : renderActiveWindows()
+			return relayout()
 		}
 		case "tab-update": {
 			const tabEl = getTabEl()
@@ -147,28 +157,32 @@ const rerender = async (evt) => {
 		case "tab-attached": {
 			const winEl = getWinEl()
 			const tab = await chrome.tabs.get(evtDetails.tabId)
-			return winEl && tab ? winEl.appendTab(tab) : renderActiveWindows()
+			winEl && tab ? winEl.appendTab(tab) : renderActiveWindows()
+			return relayout()
 		}
 		case "tab-create": {
 			const winEl = getWinEl()
-			return winEl ? winEl.appendTab(evtDetails.tab) : renderActiveWindows()
+			winEl ? winEl.appendTab(evtDetails.tab) : renderActiveWindows()
+			return relayout()
 		}
 		case "tab-move": {
 			const tabEl = getTabEl()
 			if (!tabEl) return renderActiveWindows()
 			const { fromIndex, toIndex } = evtDetails.moveInfo
 			if (toIndex === 0) {
-				return tabEl.parentNode.prepend(tabEl)
+				tabEl.parentNode.prepend(tabEl)
 			} else if (fromIndex < toIndex) {
 				// move to the right
-				return tabEl.parentNode.insertBefore(tabEl, tabEl.parentNode.children[toIndex + 1])
+				tabEl.parentNode.insertBefore(tabEl, tabEl.parentNode.children[toIndex + 1])
 			} else {
 				// move to the left
-				return tabEl.parentNode.insertBefore(tabEl, tabEl.parentNode.children[toIndex])
+				tabEl.parentNode.insertBefore(tabEl, tabEl.parentNode.children[toIndex])
 			}
+			return relayout()
 		}
 		case "tab+session-window-saved":
-			return renderSavedWindows()
+			renderSavedWindows()
+			return relayout()
 		default:
 			console.error("Unknown render event type", evtType, evtDetails)
 	}
@@ -199,4 +213,5 @@ chrome.tabs.onActivated.addListener((activeInfo) =>
 	rerender({ type: "tab-activated", tabId: activeInfo.tabId, winId: activeInfo.windowId })
 )
 window.addEventListener("tab+session-window-saved", rerender)
+window.addEventListener("resize", relayout)
 export {}

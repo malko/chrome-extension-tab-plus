@@ -86,6 +86,7 @@ export class WindowWindow extends HTMLElement {
 					padding: .5rem;
 					margin:.4rem;
 					max-width: 350px;
+					min-width: 250px;
 					flex-wrap: wrap;
 					justify-content: flex-start;
 					align-items: flex-start;
@@ -317,6 +318,14 @@ export class WindowWindow extends HTMLElement {
 		//#endregion drag and drop handlers
 	}
 
+	calculateGridRowEnd() {
+		const grid = this.parentElement
+		const gridStyle = window.getComputedStyle(grid)
+		const rowHeight = parseInt(gridStyle.getPropertyValue("grid-auto-rows"))
+		const rowGap = parseInt(gridStyle.getPropertyValue("grid-row-gap"))
+		this.style.gridRowEnd = "span " + Math.ceil((this.getBoundingClientRect().height + rowGap) / (rowHeight + rowGap))
+	}
+
 	connectedCallback() {
 		this.shadowRoot.querySelector(".window-close").addEventListener("click", this.#winCloseHandler)
 		this.shadowRoot.querySelector(".window-minimize").addEventListener("click", this.#winMinimizeHandler)
@@ -328,6 +337,7 @@ export class WindowWindow extends HTMLElement {
 		this.tabsContainer.addEventListener("dragover", this.#dragoverHandler)
 		this.tabsContainer.addEventListener("dragleave", this.#dragleaveHandler)
 		this.tabsContainer.addEventListener("drop", this.#dropHandler)
+		this.calculateGridRowEnd()
 	}
 
 	disconnectedCallback() {
@@ -418,6 +428,7 @@ export class WindowSessionWindow extends WindowWindow {
 	connectedCallback() {
 		this.shadowRoot.querySelector(".window-restore").addEventListener("click", this.#restoreHandler)
 		this.shadowRoot.querySelector(".window-delete").addEventListener("click", this.#deleteHandler)
+		this.calculateGridRowEnd()
 	}
 	disconnectedCallback() {
 		this.shadowRoot.querySelector(".window-restore").removeEventListener("click", this.#restoreHandler)

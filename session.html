@@ -6,18 +6,22 @@
 <style type="text/css">
 	@import url("styles.css");
 	#windowsActive, #windowsSaved{
-		display: flex;
-		justify-content: flex-start;
-		flex-wrap: wrap;
-		padding: 1rem;
+		padding: 2rem 1rem 1rem 1rem;
 		margin: 1rem;
 		border-radius: var(--radius);
+		position: relative;
+		display:grid;
+		grid-gap: .5rem;
+		grid-template-columns: repeat(auto-fill, minmax(250px, 350px));
+		grid-auto-rows: 10px;
 		&:before{
 			content: "Active Windows";
 			display: block;
-			width: 100%;
+			/* width: 100%; */
 			font-weight: bold;
-			margin-bottom: 1rem;
+			position:absolute;
+			top:0;
+			padding:1rem;
 		}
 	}
 	#windowsSaved {

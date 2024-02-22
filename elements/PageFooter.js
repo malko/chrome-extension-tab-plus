@@ -10,9 +10,12 @@ export class PageFooter extends HTMLElement {
 				justify-content: space-evenly;
 				padding:1rem;
 				align-items: center;
+				gap: 1rem;
+				flex-wrap: wrap;
 			}
-			span {
+			:host > span {
 				display: inline-flex;
+				justify-content: flex-start;
 				align-items: center;
 				gap: .2rem;
 			}
