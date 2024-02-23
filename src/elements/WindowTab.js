@@ -207,7 +207,6 @@ export class WindowTab extends HTMLElement {
 
 	async #clickHandler(/**@type{MouseEvent}*/ evt) {
 		const { _id, _windowId } = this
-		evt.preventDefault()
 		switch (evt.button) {
 			case 0: // left click select tab
 				await chrome.runtime.sendMessage({ type: "switch-to-tab", id: _id, windowId: _windowId })
@@ -216,7 +215,6 @@ export class WindowTab extends HTMLElement {
 	}
 	async #middleClickHandler(/**@type{MouseEvent}*/ evt) {
 		if (evt.button !== 1) return
-		evt.preventDefault()
 		return this.close()
 	}
 }

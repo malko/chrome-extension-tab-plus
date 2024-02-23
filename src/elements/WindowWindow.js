@@ -19,7 +19,16 @@ const prevDflt = (handler) => (/**@type{MouseEvent}*/ evt) => {
 	evt.stopPropagation()
 	handler(evt)
 }
-const quitHandler = (handler) => prevDflt((/**@type{Event}*/ evt) => handler(evt) !== false && window.close())
+const quitHandler = (handler) =>
+	prevDflt((/**@type{Event}*/ evt) => {
+		if (handler(evt) === false) return
+		//@ts-expect-error
+		if (!evt.ctrlKey) {
+			window.close()
+		} else {
+			grabFocus()
+		}
+	})
 
 const setWindowState = async (/**@type{number|{id:number}}*/ windowOrWindowId, state) => {
 	const window = await chrome.windows.get(typeof windowOrWindowId === "number" ? windowOrWindowId : windowOrWindowId.id)
@@ -83,6 +92,7 @@ export class WindowWindow extends HTMLElement {
 					flex-shrink: 1;
 					border: solid var(--border-color) 1px;
 					border-radius: calc(var(--radius) * 2);
+					background-color: var(--bg);
 					padding: .5rem;
 					margin:.4rem;
 					max-width: 350px;
@@ -216,11 +226,12 @@ export class WindowWindow extends HTMLElement {
 				} else {
 					groupsData = (await chrome.tabGroups.query({ windowId: windowData.id })).map((group) => {
 						const { color, title, id } = group
-						return { color: groupColors[color] || color, title, id }
+						return { color: color, title, id }
 					})
 				}
 				//@ts-expect-error
 				groupsData.forEach(({ id, color, title }) => {
+					color in groupColors && (color = groupColors[color])
 					groupTabs[id].forEach((tabElmt, index) => {
 						if (index === 0) {
 							title && (tabElmt.dataset.groupTitle = title)

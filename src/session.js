@@ -25,7 +25,16 @@ document.querySelector("header .actions-new")?.addEventListener("click", (evt) =
 	const action = evt.target?.getAttribute("name")
 	if (!action) return
 	chrome.windows.create({ focused: true, incognito: action === "tabNewIncognito" })
-	window.close()
+	//@ts-expect-error
+	if (evt.ctrlKey) {
+		sessionTabId &&
+			chrome.tabs
+				.get(sessionTabId)
+				.then((tab) => chrome.windows.update(tab.windowId, { focused: true }))
+				.catch(console.error)
+	} else {
+		window.close()
+	}
 })
 //#endregion
 
