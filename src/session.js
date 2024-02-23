@@ -13,6 +13,13 @@ const loadingSettings = await chrome.storage.local.get(["darkmode", "show-titles
 const searchInput = document.getElementById("search")
 
 bindPageActions()
+const grabFocus = () => {
+	sessionTabId &&
+		chrome.tabs
+			.get(sessionTabId)
+			.then((tab) => chrome.windows.update(tab.windowId, { focused: true }))
+			.catch(console.error)
+}
 const relayout = () => {
 	;[...activesContainer.children, ...savedContainer.children].forEach((element) => {
 		//@ts-expect-error
@@ -27,11 +34,7 @@ document.querySelector("header .actions-new")?.addEventListener("click", (evt) =
 	chrome.windows.create({ focused: true, incognito: action === "tabNewIncognito" })
 	//@ts-expect-error
 	if (evt.ctrlKey) {
-		sessionTabId &&
-			chrome.tabs
-				.get(sessionTabId)
-				.then((tab) => chrome.windows.update(tab.windowId, { focused: true }))
-				.catch(console.error)
+		grabFocus()
 	} else {
 		window.close()
 	}
@@ -273,4 +276,18 @@ window.addEventListener(
 		{ preventDefault: true, stopPropagation: true }
 	)
 )
+// for drag and drop tabs
+activesContainer.addEventListener("dragover", (evt) => {
+	evt.preventDefault()
+})
+activesContainer.addEventListener("drop", (evt) => {
+	evt.preventDefault()
+	try {
+		const { tabId, windowId } = JSON.parse(evt.dataTransfer.getData("text/plain"))
+		if (!(tabId && windowId)) return
+		chrome.windows.create({ focused: false, tabId }).then(grabFocus).catch(console.error)
+	} catch (e) {
+		console.error(e)
+	}
+})
 export {}
