@@ -56,6 +56,7 @@ loadingSettings["show-titles"] && rootElmt.classList.add("show-titles")
  * tagged template string to safely escape parameters when you compose your regexp strings
  * example: ```new RegExp(regSafeString`^${param}`, 'i')``
  */
+const escapeExpChars = (s) => s.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&")
 /** @returns {WindowTab[]} */
 const getTabsEl = ({ activeOnly = false, visibleOnly = false } = {}) =>
 	Array.from(document.querySelectorAll(`window-window${activeOnly ? "" : ", window-session-window"}`)).reduce(
@@ -68,15 +69,16 @@ const getTabsEl = ({ activeOnly = false, visibleOnly = false } = {}) =>
 searchInput?.addEventListener("input", (evt) => {
 	//@ts-expect-error
 	const query = evt.target.value
-	const queryRegExp = new RegExp(query.split("").join("[\\s\\S]*"), "i")
+	const queryRegExp = new RegExp(query.split("").map(escapeExpChars).join("[\\s\\S]*"), "i")
 	getTabsEl().forEach((element) => {
-		element.classList.toggle("hidden", !queryRegExp.test(element.title))
+		const match = queryRegExp.test(element.tabData.title) || queryRegExp.test(element.tabData.url)
+		element.classList.toggle("hidden", !match)
 	})
 	relayout()
 })
 searchInput?.addEventListener(
 	"keydown",
-	keysHandler("ArrowDown", (evt) => getTabsEl({ activeOnly: true, visibleOnly: true })[0]?.focus(), {
+	keysHandler("ArrowDown|Enter", (evt) => getTabsEl({ activeOnly: true, visibleOnly: true })[0]?.focus(), {
 		preventDefault: true,
 		stopPropagation: true,
 	})
