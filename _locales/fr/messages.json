@@ -111,10 +111,10 @@
    },
    "pageOptionTitle": {
       "description": "page option title",
-      "message": "Paramêtres de l'extension"
+      "message": "Paramêtres de l'extension (Ctrl+o)"
    },
    "searchInputPlaceholder": {
       "description": "placeholder de l'input de recherche",
-      "message": "Entrer du texte pour filtrer les titres des onglets"
+      "message": "Entrer du texte pour filtrer les titres des onglets (Ctrl+f)"
    }
 }

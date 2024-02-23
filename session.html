@@ -45,9 +45,9 @@
 	}
 	.actions-new {
 		position:relative;
-		top:1px;
+		top:2px;
 		right:-1rem;
-		padding:.4rem .4rem 1px .4rem; 
+		padding:.4rem .4rem 2px .4rem; 
 		border-top-left-radius: var(--radius);
 		border-top-right-radius: var(--radius);
 		background-color: var(--bg);
@@ -58,10 +58,12 @@
 	label:has(#search) {
 		display: flex;
 		justify-content: center;
+		margin: 1rem 2.5rem;
 		#search {
-			width: 80%;
+			display:inline-flex;
+			flex-grow: 1;
 			padding: .5rem;
-			margin: 1rem 0;
+			margin: 0;
 			border: solid var(--border-color) 1px;
 			border-radius: var(--radius);
 		}
@@ -98,8 +100,8 @@
 				noLabel
 			></boolean-settings>
 			<div class="actions-new">
-				<color-svg name="tabNew" size="24px" title="msg:pageActionNewWindow" ></color-svg>
-				<color-svg name="tabNewIncognito" size="24px" title="msg:pageActionNewIncognitoWindow" ></color-svg>
+				<color-svg name="tabNew" size="24px" title="msg:pageActionNewWindow" tabindex="0"></color-svg>
+				<color-svg name="tabNewIncognito" size="24px" title="msg:pageActionNewIncognitoWindow" tabindex="0"></color-svg>
 			</div>
 		</div>
 		<div class="actions">
@@ -108,7 +110,7 @@
 		</div>
 	</header>
 	<label>
-		<input type="search" id="search" placeholder="msg:searchInputPlaceholder">
+		<input type="search" id="search" placeholder="msg:searchInputPlaceholder" autofocus>
 		<color-svg name="search" size="24px"></color-svg>
 	</label>
 	<div id="windowsActive"></div>

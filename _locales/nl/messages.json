@@ -111,10 +111,10 @@
    },
    "pageOptionTitle": {
       "description": "paginatitel optie",
-      "message": "Extensie-instellingen"
+      "message": "Extensie-instellingen (Ctrl+o)"
    },
    "searchInputPlaceholder": {
       "description": "placeholder voor zoekinvoer",
-      "message": "Voer tekst in om tabtitels te filteren"
+      "message": "Voer tekst in om tabtitels te filteren (Ctrl+f)"
    }
 }

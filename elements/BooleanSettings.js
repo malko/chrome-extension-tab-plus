@@ -87,6 +87,9 @@ export class BooleanSettings extends HTMLElement {
 	get checked() {
 		return this.#input.checked
 	}
+	toggle() {
+		return this.#input.toggle()
+	}
 	addEventListener(evtName, handler, options) {
 		return this.#input.addEventListener(evtName, handler, options)
 	}

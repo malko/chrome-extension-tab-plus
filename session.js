@@ -4,7 +4,7 @@ import { WindowTab } from "./elements/WindowTab.js"
 import { SVGs } from "./assets/svgs.js"
 import { getSavedWindows } from "./libs/db.js"
 import { bindPageActions } from "./libs/bindPageActions.js"
-import { keyMap } from "./libs/keyMaps.js"
+import { keyMap, keysHandler } from "./libs/keyMaps.js"
 const rootElmt = document.querySelector("html")
 const activesContainer = /**@type{HTMLDivElement}*/ (document.querySelector("#windowsActive"))
 const savedContainer = /**@type{HTMLDivElement}*/ (document.querySelector("#windowsSaved"))
@@ -56,25 +56,31 @@ loadingSettings["show-titles"] && rootElmt.classList.add("show-titles")
  * tagged template string to safely escape parameters when you compose your regexp strings
  * example: ```new RegExp(regSafeString`^${param}`, 'i')``
  */
-const regSafeString = (strings, ...params) =>
-	strings
-		.map((string, i) => string + (params[i] ? String(params[i]).replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&") : ""))
-		.join("")
 /** @returns {WindowTab[]} */
-const getTabsEl = () =>
-	Array.from(document.querySelectorAll("window-window, window-session-window")).reduce((acc, el) => {
-		acc.push(...el.shadowRoot.querySelectorAll("window-tab"))
-		return acc
-	}, [])
+const getTabsEl = ({ activeOnly = false, visibleOnly = false } = {}) =>
+	Array.from(document.querySelectorAll(`window-window${activeOnly ? "" : ", window-session-window"}`)).reduce(
+		(acc, el) => {
+			acc.push(...el.querySelectorAll(`window-tab${visibleOnly ? ":not(.hidden)" : ""}`))
+			return acc
+		},
+		[]
+	)
 searchInput?.addEventListener("input", (evt) => {
 	//@ts-expect-error
 	const query = evt.target.value
 	const queryRegExp = new RegExp(query.split("").join("[\\s\\S]*"), "i")
 	getTabsEl().forEach((element) => {
-		element.style.display = queryRegExp.test(element.title) ? "" : "none"
+		element.classList.toggle("hidden", !queryRegExp.test(element.title))
 	})
 	relayout()
 })
+searchInput?.addEventListener(
+	"keydown",
+	keysHandler("ArrowDown", (evt) => getTabsEl({ activeOnly: true, visibleOnly: true })[0]?.focus(), {
+		preventDefault: true,
+		stopPropagation: true,
+	})
+)
 //#endregion search
 const debounced = (fn, delay = 250) => {
 	let lastExec = 0
@@ -139,7 +145,7 @@ const rerender = async (evt) => {
 	}
 	const getWinEl = () =>
 		/**@type{WindowWindow|null}*/ (document.querySelector(`window-window#window-${evtDetails.winId}`))
-	const getTabEl = () => getWinEl()?.shadowRoot.querySelector(`window-tab#tab-${evtDetails.tabId}`)
+	const getTabEl = () => getWinEl()?.querySelector(`window-tab#tab-${evtDetails.tabId}`)
 
 	switch (evtType) {
 		case "window-create":
@@ -241,11 +247,17 @@ chrome.tabs.onActivated.addListener((activeInfo) =>
 )
 window.addEventListener("tab+session-window-saved", rerender)
 window.addEventListener("resize", relayout)
+const keyboardClickHandler = (evt) => evt.target.getAttribute("tabIndex") === "0" && evt.target.click()
 window.addEventListener(
 	"keydown",
 	keyMap(
 		{
 			"Ctrl+f": () => searchInput?.focus(),
+			"Ctrl+l": () => showTitlesEl.toggle(),
+			//@ts-expect-error
+			"Ctrl+o": () => document.querySelector('header .actions [data-action="settings"]').click(),
+			Enter: keyboardClickHandler,
+			" ": keyboardClickHandler,
 		},
 		{ preventDefault: true, stopPropagation: true }
 	)

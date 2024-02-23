@@ -154,6 +154,7 @@ export class WindowWindow extends HTMLElement {
 					border-radius: 50%;
 					background-color: #fff8;
 					padding:0;
+					cursor: pointer;
 				}
 				:host .window-actions button:hover{
 					opacity: 1;
@@ -163,7 +164,7 @@ export class WindowWindow extends HTMLElement {
 				:host(.minimized) .window-minimize {
 					opacity: .5;
 				}
-				window-tab[data-group-title]::before{
+				::slotted(window-tab[data-group-title]:hover)::before{
 					position: absolute;
 					display: block;
 					top: calc(-1rem - 2px);
@@ -177,9 +178,6 @@ export class WindowWindow extends HTMLElement {
 					text-overflow: ellipsis;
 					white-space: nowrap;
 					overflow: hidden;
-				}
-				:host-context(.show-titles) window-tab[data-group-title]{
-					margin-top:1rem;
 				}
 			</style>
 			<div class="window-title">
@@ -195,9 +193,8 @@ export class WindowWindow extends HTMLElement {
 					}
 				</span>
 			</div>
-			<div class="window-tabs" id="window-tabs-container-${this._id}"></div>
+			<div class="window-tabs" id="window-tabs-container-${this._id}"><slot></slot></div>
 		`
-		this.tabsContainer = this.shadowRoot.querySelector(".window-tabs")
 		const groupTabs = {}
 		windowData.tabs.forEach((tab) => {
 			const tabElmt = this.appendTab(tab)
@@ -227,15 +224,14 @@ export class WindowWindow extends HTMLElement {
 							tabElmt.style.setProperty("--group-color", color)
 						}
 						tabElmt.style.boxShadow = `0 0 0 2px ${color}`
-						tabElmt.title = title
 					})
 				})
 			}
 		})()
 
 		//#region window actions handlers
-		const winToggleStateHandler = (stateName) =>
-			prevDflt(async (/**@type{MouseEvent}*/ evt) => {
+		if (this.tagName === "WINDOW-WINDOW") {
+			const winToggleStateHandler = (stateName) => async () => {
 				const win = await chrome.windows.get(this._id)
 				const state = win.state !== stateName ? stateName : "normal"
 				await chrome.windows
@@ -243,79 +239,80 @@ export class WindowWindow extends HTMLElement {
 					.then(() => setWindowState(this._id, state))
 					.then(grabFocus)
 					.catch(console.error)
-			})
-
-		this.#winCloseHandler = prevDflt((/**@type{MouseEvent}*/ evt) => {
-			chrome.windows.remove(this._id)
-		})
-		this.#winMaximizeHandler = winToggleStateHandler("maximized")
-		this.#winMinimizeHandler = winToggleStateHandler("minimized")
-		this.#winNewTabHandler = quitHandler(() => {
-			chrome.tabs.create({ windowId: this._id }).catch(console.error)
-		})
-		this.#winFocusHandler = quitHandler(() => {
-			chrome.windows.update(this._id, { focused: true }).catch(console.error)
-		})
-		this.#winSaveHandler = prevDflt(async (evt) => {
-			const win = await chrome.windows.get(this._id, { populate: true })
-			const sessionTabId = await getSessionTabId()
-			win.tabs = win.tabs.filter((tab) => tab.id !== sessionTabId)
-			saveWindow(win).then(() => {
-				window.dispatchEvent(new CustomEvent("tab+session-window-saved"))
-			})
-		})
-		//#endregion window actions handlers
-
-		//#region drag and drop handlers
-		/**@type {HTMLElement} */
-		let dragPlaceholder
-		const delegatedTabHandler = (handler) => (evt) => {
-			evt.target.tagName === "WINDOW-TAB" && handler(evt)
-		}
-		const insertDragPlaceholder = delegatedTabHandler(({ target, clientX, clientY }) => {
-			if (target === dragPlaceholder) return
-			if (!dragPlaceholder) {
-				dragPlaceholder = new WindowTab({ index: 0, title: "", favIconUrl: null })
-				dragPlaceholder.style.backgroundColor = "rgba(200,200	,0,.5)"
 			}
-			const isVerticalMove = this.matches(`.show-titles ${this.tagName}`)
-			const rect = target.getBoundingClientRect()
-			let isOverEnd
-			if (isVerticalMove) {
-				isOverEnd = clientY > rect.y + rect.height / 2
-			} else {
-				isOverEnd = clientX > rect.x + rect.width / 2
+			this.close = () => chrome.windows.remove(this._id)
+			this.toggleMaximize = winToggleStateHandler("maximized")
+			this.toggleMinimize = winToggleStateHandler("minimized")
+			this.createNewTab = () => chrome.tabs.create({ windowId: this._id }).catch(console.error)
+
+			this.#winCloseHandler = prevDflt((/**@type{MouseEvent}*/ evt) => this.close())
+			this.#winMaximizeHandler = prevDflt(this.toggleMaximize)
+			this.#winMinimizeHandler = prevDflt(this.toggleMinimize)
+			this.#winNewTabHandler = quitHandler(this.createNewTab)
+			this.#winFocusHandler = quitHandler(() => {
+				chrome.windows.update(this._id, { focused: true }).catch(console.error)
+			})
+			this.#winSaveHandler = prevDflt(async (evt) => {
+				const win = await chrome.windows.get(this._id, { populate: true })
+				const sessionTabId = await getSessionTabId()
+				win.tabs = win.tabs.filter((tab) => tab.id !== sessionTabId)
+				saveWindow(win).then(() => {
+					window.dispatchEvent(new CustomEvent("tab+session-window-saved"))
+				})
+			})
+			//#endregion window actions handlers
+
+			//#region drag and drop handlers
+			/**@type {HTMLElement} */
+			let dragPlaceholder
+			const delegatedTabHandler = (handler) => (evt) => {
+				evt.target.tagName === "WINDOW-TAB" && handler(evt)
 			}
-			if (isOverEnd) {
-				if (target.nextElementSibling) {
-					this.tabsContainer.insertBefore(dragPlaceholder, target.nextElementSibling)
-				} else {
-					this.tabsContainer.appendChild(dragPlaceholder)
+			const insertDragPlaceholder = delegatedTabHandler(({ target, clientX, clientY }) => {
+				if (target === dragPlaceholder) return
+				if (!dragPlaceholder) {
+					dragPlaceholder = new WindowTab({ index: 0, title: "", favIconUrl: null })
+					dragPlaceholder.style.backgroundColor = "rgba(200,200	,0,.5)"
 				}
-			} else {
-				this.tabsContainer.insertBefore(dragPlaceholder, target)
+				const isVerticalMove = this.matches(`.show-titles ${this.tagName}`)
+				const rect = target.getBoundingClientRect()
+				let isOverEnd
+				if (isVerticalMove) {
+					isOverEnd = clientY > rect.y + rect.height / 2
+				} else {
+					isOverEnd = clientX > rect.x + rect.width / 2
+				}
+				if (isOverEnd) {
+					if (target.nextElementSibling) {
+						this.insertBefore(dragPlaceholder, target.nextElementSibling)
+					} else {
+						this.appendChild(dragPlaceholder)
+					}
+				} else {
+					this.insertBefore(dragPlaceholder, target)
+				}
+			})
+			const removeDragPlaceholder = () => {
+				dragPlaceholder?.remove()
+				dragPlaceholder = null
 			}
-		})
-		const removeDragPlaceholder = () => {
-			dragPlaceholder?.remove()
-			dragPlaceholder = null
+			this.#dragenterHandler = prevDflt(insertDragPlaceholder)
+			this.#dragoverHandler = prevDflt(insertDragPlaceholder)
+			this.#dragleaveHandler = prevDflt((/**@type{DragEvent}*/ evt) => {
+				//@ts-expect-error
+				this.contains(evt.relatedTarget) || removeDragPlaceholder()
+			})
+			this.#dropHandler = prevDflt((/**@type{DragEvent}*/ evt) => {
+				if (!dragPlaceholder) return
+				const { tabId, windowId } = JSON.parse(evt.dataTransfer.getData("text/plain"))
+				const index = Array.from(dragPlaceholder.parentElement.children)
+					.filter((el) => el.id !== `tab-${tabId}`)
+					.indexOf(dragPlaceholder)
+				removeDragPlaceholder()
+				return chrome.tabs.move(tabId, { windowId: this._id, index })
+			})
+			//#endregion drag and drop handlers
 		}
-		this.#dragenterHandler = prevDflt(insertDragPlaceholder)
-		this.#dragoverHandler = prevDflt(insertDragPlaceholder)
-		this.#dragleaveHandler = prevDflt((/**@type{DragEvent}*/ evt) => {
-			//@ts-expect-error
-			this.tabsContainer.contains(evt.relatedTarget) || removeDragPlaceholder()
-		})
-		this.#dropHandler = prevDflt((/**@type{DragEvent}*/ evt) => {
-			if (!dragPlaceholder) return
-			const { tabId, windowId } = JSON.parse(evt.dataTransfer.getData("text/plain"))
-			const index = Array.from(dragPlaceholder.parentElement.children)
-				.filter((el) => el.id !== `tab-${tabId}`)
-				.indexOf(dragPlaceholder)
-			removeDragPlaceholder()
-			return chrome.tabs.move(tabId, { windowId: this._id, index })
-		})
-		//#endregion drag and drop handlers
 	}
 
 	calculateGridRowEnd() {
@@ -333,10 +330,10 @@ export class WindowWindow extends HTMLElement {
 		this.shadowRoot.querySelector(".window-new-tab").addEventListener("click", this.#winNewTabHandler)
 		this.shadowRoot.querySelector(".window-title").addEventListener("click", this.#winFocusHandler)
 		this.shadowRoot.querySelector(".window-save").addEventListener("click", this.#winSaveHandler)
-		this.tabsContainer.addEventListener("dragenter", this.#dragenterHandler)
-		this.tabsContainer.addEventListener("dragover", this.#dragoverHandler)
-		this.tabsContainer.addEventListener("dragleave", this.#dragleaveHandler)
-		this.tabsContainer.addEventListener("drop", this.#dropHandler)
+		this.addEventListener("dragenter", this.#dragenterHandler)
+		this.addEventListener("dragover", this.#dragoverHandler)
+		this.addEventListener("dragleave", this.#dragleaveHandler)
+		this.addEventListener("drop", this.#dropHandler)
 		this.calculateGridRowEnd()
 	}
 
@@ -347,17 +344,14 @@ export class WindowWindow extends HTMLElement {
 		this.shadowRoot.querySelector(".window-new-tab").removeEventListener("click", this.#winNewTabHandler)
 		this.shadowRoot.querySelector(".window-title").removeEventListener("click", this.#winFocusHandler)
 		this.shadowRoot.querySelector(".window-save").removeEventListener("click", this.#winSaveHandler)
-		this.tabsContainer.removeEventListener("dragenter", this.#dragenterHandler)
-		this.tabsContainer.removeEventListener("dragover", this.#dragoverHandler)
-		this.tabsContainer.removeEventListener("dragleave", this.#dragleaveHandler)
-		this.tabsContainer.removeEventListener("drop", this.#dropHandler)
-	}
-	appendTabElement(/**@type{WindowTab}*/ tabEl) {
-		return this.tabsContainer.appendChild(tabEl)
+		this.removeEventListener("dragenter", this.#dragenterHandler)
+		this.removeEventListener("dragover", this.#dragoverHandler)
+		this.removeEventListener("dragleave", this.#dragleaveHandler)
+		this.removeEventListener("drop", this.#dropHandler)
 	}
 	appendTab(/**@type{import("../libs/index.d.ts").TabData|chrome.tabs.Tab}*/ tab) {
 		const { index } = tab
-		return this.tabsContainer.insertBefore(new WindowTab(tab), this.tabsContainer.children[index] || null)
+		return this.insertBefore(new WindowTab(tab), this.children[index] || null)
 	}
 }
 

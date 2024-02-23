@@ -111,10 +111,10 @@
    },
    "pageOptionTitle": {
       "description": "page option title",
-      "message": "Extension settings"
+      "message": "Extension settings (Ctrl+o)"
    },
    "searchInputPlaceholder": {
       "description": "search input placeholder",
-      "message": "Enter text to filter tabs titles"
+      "message": "Enter text to filter tabs titles (Ctrl+f)"
    }
 }

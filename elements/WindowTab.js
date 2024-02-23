@@ -1,7 +1,72 @@
 //@ts-check
+import {
+	getLastChild,
+	getLastMatchingSibling,
+	getNthNextMatchingSibling,
+	getNthPrevMatchingSibling,
+} from "../libs/getNthSibling.js"
 import htmlEntties from "../libs/htmlEntties.js"
+import { keyMap } from "../libs/keyMaps.js"
 import { ColorSvg } from "./ColorSvg.js"
 
+const nextTabHandler = async (evt) => {
+	const tab = evt.target
+	const next = tab.parentElement.querySelector(`window-tab#${tab.id} ~ window-tab:not(.hidden)`)
+	if (next) return next.focus()
+	const winEl = evt.target.parentElement
+	//@todo should be able to focus the next window WITH VISIBLE TABS (perhaps it's time to utilisze slots)
+	const nextWindow = getNthNextMatchingSibling({
+		elmt: winEl,
+		selector: "window-window:has(window-tab:not(.hidden))",
+	})
+	if (nextWindow) {
+		const firstTab = /**@type {HTMLElement}*/ (nextWindow.querySelector("window-tab:not(.hidden)"))
+		if (firstTab) return firstTab.focus()
+	}
+	const firstWindow = winEl.parentElement.querySelector("window-window:has(window-tab:not(.hidden))")
+	if (firstWindow) {
+		const firstTab = firstWindow.querySelector("window-tab:not(.hidden)")
+		if (firstTab) return firstTab.focus()
+	}
+}
+const prevTabHandler = (evt) => {
+	const tab = evt.target
+	const prev = [...tab.parentElement.querySelectorAll(`window-tab:not(.hidden):has(~window-tab#${tab.id})`)].at(-1)
+	if (prev) return prev.focus()
+	const winEl = evt.target.parentElement
+	const prevWindow = getNthPrevMatchingSibling({
+		elmt: winEl,
+		selector: "window-window:has(window-tab:not(.hidden))",
+	})
+	if (prevWindow) {
+		const lastTab = getLastChild(prevWindow, "window-tab:not(.hidden)")
+		if (lastTab) return lastTab.focus()
+	}
+	const lastWindow = getLastMatchingSibling({
+		elmt: winEl,
+		selector: "window-window:has(window-tab:not(.hidden))",
+	})
+	if (lastWindow) {
+		const lastTab = getLastChild(lastWindow, "window-tab:not(.hidden)")
+		if (lastTab) return lastTab.focus()
+	}
+}
+const clickHandler = (evt) => {
+	evt.target.click()
+}
+const keyDownHandler = keyMap(
+	/**@type {Record<string, (evt: KeyboardEvent & {target:WindowTab})=>void>} */ ({
+		ArrowUp: prevTabHandler,
+		ArrowLeft: prevTabHandler,
+		ArrowDown: nextTabHandler,
+		ArrowRight: nextTabHandler,
+		Enter: clickHandler,
+		" ": clickHandler,
+		Delete: (evt) => evt.target.close(),
+		Escape: () => /**@type {HTMLElement}*/ (document.querySelector("[autofocus]"))?.focus(),
+	}),
+	{ preventDefault: true, stopPropagation: true }
+)
 export class WindowTab extends HTMLElement {
 	constructor(/**@type{import("../libs/index.d.ts").TabData|chrome.tabs.Tab}*/ tab) {
 		super()
@@ -31,6 +96,7 @@ export class WindowTab extends HTMLElement {
 				color: var(--tab-fg);
 				cursor: ${tab.windowId ? "pointer" : "default"};
 			}
+			:host(.hidden){display:none;}
 			${
 				tab.windowId
 					? /*css*/ `
@@ -102,6 +168,7 @@ export class WindowTab extends HTMLElement {
 		this.addEventListener("dragend", this.#dragendHandler)
 		this.addEventListener("click", this.#clickHandler)
 		this.addEventListener("mousedown", this.#middleClickHandler)
+		this.addEventListener("keydown", keyDownHandler)
 	}
 
 	disconnectedCallback() {
@@ -112,6 +179,17 @@ export class WindowTab extends HTMLElement {
 		this.removeEventListener("dragend", this.#dragendHandler)
 		this.removeEventListener("click", this.#clickHandler)
 		this.removeEventListener("mousedown", this.#middleClickHandler)
+		this.removeEventListener("keydown", keyDownHandler)
+	}
+
+	async close() {
+		let nextFocusTab = null
+		if (document.activeElement === this) {
+			nextFocusTab =
+				getNthNextMatchingSibling({ elmt: this, selector: "window-tab:not(.hidden)" }) ||
+				getNthPrevMatchingSibling({ elmt: this, selector: "window-tab:not(.hidden)" })
+		}
+		return this._id && chrome.tabs.remove(this._id).then(() => nextFocusTab?.focus())
 	}
 
 	async #dragstartHandler(/**@type{DragEvent}*/ evt) {
@@ -139,9 +217,8 @@ export class WindowTab extends HTMLElement {
 	}
 	async #middleClickHandler(/**@type{MouseEvent}*/ evt) {
 		if (evt.button !== 1) return
-		const { _id } = this
 		evt.preventDefault()
-		return chrome.tabs.remove(_id)
+		return this.close()
 	}
 }
 customElements.define("window-tab", WindowTab)
