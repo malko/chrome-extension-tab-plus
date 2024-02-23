@@ -4,9 +4,15 @@
   "description": "chrome extension to manage tabs",
   "main": "index.js",
   "scripts": {
-    "checkLocales": "node utils/checkLocales.js -c"
+    "checkLocales": "node utils/checkLocales.js -c",
+    "build": "vite build --emptyOutDir"
   },
   "author": "Jonathan Gotti <jgotti at jgotti dot org>",
   "license": "MIT",
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "@types/chrome": "^0.0.261",
+    "vite": "^5.1.4",
+    "vite-plugin-static-copy": "^1.0.1"
+  }
 }
