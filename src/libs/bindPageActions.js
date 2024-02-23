@@ -15,7 +15,6 @@ export const bindPageActions = async () => {
 	quitButton?.addEventListener("click", () => window.close())
 	const settingsButton = document.querySelector('header .actions [data-action="settings"]')
 	settingsButton?.addEventListener("click", () => {
-		window.close()
-		chrome.runtime.openOptionsPage()
+		chrome.runtime.sendMessage({ type: "open-options" })
 	})
 }

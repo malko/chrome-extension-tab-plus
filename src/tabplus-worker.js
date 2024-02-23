@@ -134,6 +134,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 			]).finally(sendResponse)
 			break
 		}
+		case "open-options":
+			if (sessionTabId) {
+				chrome.tabs.remove(sessionTabId)
+				sessionTabId = null
+				prevActiveTabId = null
+			}
+			chrome.runtime.openOptionsPage()
+			break
 	}
 })
 //#endregion session management
