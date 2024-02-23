@@ -14,7 +14,6 @@ const nextTabHandler = async (evt) => {
 	const next = tab.parentElement.querySelector(`window-tab#${tab.id} ~ window-tab:not(.hidden)`)
 	if (next) return next.focus()
 	const winEl = evt.target.parentElement
-	//@todo should be able to focus the next window WITH VISIBLE TABS (perhaps it's time to utilisze slots)
 	const nextWindow = getNthNextMatchingSibling({
 		elmt: winEl,
 		selector: "window-window:has(window-tab:not(.hidden))",

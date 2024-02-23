@@ -17,15 +17,10 @@ export const SVGs = {
 	<path style="${roundStroke}stroke-width:4;${noFill}" d="m5 12l4 6l11-12">
 </svg>`,
 
-	delete: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<defs>
-<style>.cls1{${noFill}${roundStroke}stroke-width:2px}</style>
-</defs>
-<path class="cls1" d="M10 12V17" />
-<path class="cls1" d="M14 12V17" />
-<path class="cls1" d="M4 7H20" />
-<path class="cls1" d="M6 10V18C6 19.6569 7.34315 21 9 21H15C16.6569 21 18 19.6569 18 18V10" />
-<path class="cls1" d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z" />
+	delete: `${svg24}
+<defs><style>.cls1{${noFill}${roundStroke}stroke-width:2px}</style></defs>
+<path class="cls1" d="M9 4h6M4 7h16m-3 0v13h-10v-13"/>
+<path class="cls1" style="stroke-width:1.25" d="M10.5 10v7M13.5 10v7"/>
 </svg>`,
 
 	earth: `${svg24}
@@ -127,10 +122,12 @@ export const SVGs = {
 <path class="stroke" d="M7 11L4.5 13.5L2 11"/>
 </svg>`,
 
-	restore: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 6.35 6.35">
-<path d="M.781 3.968v1.6l4.788-.006-.007-1.606" style="${noFill}${roundStroke}stroke-width:.79375001;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"/>
-<path d="M3.193.53s.45 1.103.418 1.842c-.05.863-.43 1.844-.43 1.844" style="${noFill}${roundMiterStroke}stroke-width:.79375;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" transform="rotate(-159.263 3.462 2.496)"/>
-<path d="M7.65 11.98c-.699.012-3.66-4.906-3.32-5.518.338-.613 6.078-.717 6.438-.118.361.6-2.418 5.622-3.117 5.635Z" style="${fill}fill-opacity:1;${roundStroke}stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;paint-order:stroke fill markers;stop-color:#000" transform="matrix(-.10987 .33445 -.2968 -.0975 7.364 -.268)"/>
+	restore: `${svg24}
+<defs><style>.cls1{${noFill}${roundStroke}stroke-width:1.5;}</style></defs>
+<g transform="rotate(180)" transform-origin="center">
+<path class="cls1" d="M4 3v16h1.5m13 0h1.5v-13l-3 -3h-13M8 3l0 5l8 0l0-5M14 5l0 1"/>
+<path class="cls1" style="stroke-width:2.5;stroke-linejoin:miter;stroke-linecap:square;transform-origin:50% 16.5px;transform:rotate(180deg)" d="M12 15v5M12 13l1.5 1.5h-3z"/>
+</g>
 </svg>`,
 
 	settings: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" transform="rotate(90)" viewBox="0 0 24 24">
@@ -163,9 +160,11 @@ export const SVGs = {
 	</svg>`,
 
 	save: `${svg24}
-<path d="M1.874 14.172v5.84l18.5-.022-.028-5.862" style="${roundStroke}${noFill}stroke-width:2.98072;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" transform="translate(.876 1.182)"/>
-<path d="M11.193 1.623s1.74 4.026 1.615 6.724c-.193 3.15-1.66 6.73-1.66 6.73" style="${roundMiterStroke}${noFill}stroke-width:2.98072;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" transform="translate(.876 1.182)"/>
-<path d="M15.892 12.851c.057.897-5.694 4.947-6.453 4.542-.76-.403-1.232-7.766-.532-8.258.702-.494 6.926 2.818 6.984 3.715Z" style="${fill}fill-opacity:1;stroke-width:2.49068;${roundStroke}stroke-miterlimit:4;stroke-dasharray:none;paint-order:stroke fill markers;stop-color:var(--svg-color,#000)" transform="translate(.876 1.182)"/>
+<defs><style>.cls1{${noFill}${roundStroke}stroke-width:1.5;}</style></defs>
+<g transform="rotate(180)" transform-origin="center">
+<path class="cls1" d="M4 3v16h4m8 0h4v-13l-3 -3h-13M8 3l0 5l8 0l0-5M14 5l0 1"/>
+<path class="cls1" style="stroke-width:2.5;stroke-linejoin:miter;stroke-linecap:square" d="M12 15v5M12 13l1.5 1.5h-3z"/>
+</g>
 </svg>`,
 
 	get search() {

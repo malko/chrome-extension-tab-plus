@@ -110,7 +110,7 @@ export class WindowWindow extends HTMLElement {
 					display: flex;
 					flex-wrap: nowrap;
 					width: 100%;
-					height: 1.5rem;
+					height: 2rem;
 					padding: .2rem .4rem;
 					justify-content: center;
 					align-items: center;
@@ -143,7 +143,7 @@ export class WindowWindow extends HTMLElement {
 					padding-left: .5rem;
 				}
 				.window-actions button {
-					--size:20px;
+					--size:24px;
 					display:inline-flex;
 					box-sizing: border-box;
 					justify-content: center;
@@ -159,6 +159,9 @@ export class WindowWindow extends HTMLElement {
 				:host .window-actions button:hover{
 					opacity: 1;
 					background-color: #ffff;
+				}
+				:host .window-actions button:hover color-svg{
+					transform: scale(1.33);
 				}
 				:host(.maximized) .window-maximize,
 				:host(.minimized) .window-minimize {
