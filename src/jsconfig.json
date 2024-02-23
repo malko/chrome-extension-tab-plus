@@ -2,6 +2,6 @@
   "typeAcquisition": {"include": ["chrome"]},
   "compilerOptions": {
     "module": "ESNext",
-    "target": "ESNext"
+    "target": "ESNext",
   },
 }

@@ -1,0 +1,12 @@
+{
+  "name": "chrome-extension-tab-plus",
+  "version": "0.2.0",
+  "description": "chrome extension to manage tabs",
+  "main": "index.js",
+  "scripts": {
+    "checkLocales": "node utils/checkLocales.js -c"
+  },
+  "author": "Jonathan Gotti <jgotti at jgotti dot org>",
+  "license": "MIT",
+  "private": true
+}

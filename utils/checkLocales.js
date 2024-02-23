@@ -13,7 +13,7 @@ if (displayHelp) {
 const fs = require("fs")
 const path = require("path")
 
-const localesPath = path.join(__dirname, "..", "_locales")
+const localesPath = path.join(__dirname, "..", "src", "_locales")
 const localesAvailable = fs.readdirSync(localesPath)
 const dfltLocale = "en"
 let dfltLocaleData

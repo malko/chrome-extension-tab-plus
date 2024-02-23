@@ -8,7 +8,7 @@
 	--title-fg: #333;
 	--tab-bg: var(--bg);
 	--tab-fg: var(--fg);
-	--tab-active-bg: var(--title-bg);
+	--tab-active-bg: #f0f0f0;
 	--tab-active-fg: var(--fg);
 	--tab-hover-bg: #eee;
 	--tab-hover-fg: var(--fg);
@@ -24,6 +24,7 @@
 		--border-color: #444;
 		--title-bg: #555;
 		--title-fg: #eee;
+		--tab-active-bg: #292929;
 		--tab-bg: var(--bg);
 		--tab-fg: var(--fg);
 		--tab-hover-bg: #444;
@@ -42,6 +43,7 @@
 			--border-color: #444;
 			--title-bg: #555;
 			--title-fg: #eee;
+			--tab-active-bg: #292929;
 			--tab-bg: var(--bg);
 			--tab-fg: var(--fg);
 			--tab-hover-bg: #444;

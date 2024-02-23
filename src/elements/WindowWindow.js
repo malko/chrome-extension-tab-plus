@@ -114,7 +114,7 @@ export class WindowWindow extends HTMLElement {
 					padding: .2rem .4rem;
 					justify-content: center;
 					align-items: center;
-					margin: 0 0 .5rem 0;
+					margin: 0;
 					background-color: var(--title-bg);
 					color: var(--title-fg);
 					border-radius: var(--radius);
