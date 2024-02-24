@@ -24,6 +24,7 @@ export default {
 				{ src: "_locales", dest: "./" },
 				{ src: "icon.png", dest: "./" },
 				{ src: "assets/logo/", dest: "./assets/" },
+				{ src: "LICENSE", dest: "./" },
 			],
 		}),
 	],

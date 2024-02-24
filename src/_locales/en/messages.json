@@ -1,7 +1,7 @@
 {
    "desc": {
       "description": "extension description",
-      "message": "This extension allows newly created tabs to be focused and puts them in the last position.\nIt also enables saving and restoring windows and tabs by clicking on the extension button or using the keyboard shortcut Ctrl+Shift+e."
+      "message": "Bring new tabs to front and in last position, allow to save and restore windows."
    },
    "contextOpenBackground": {
       "description": "context menu for opening tab in background",

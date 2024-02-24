@@ -1,7 +1,7 @@
 {
    "desc": {
       "description": "description de l'extension",
-      "message": "Cette extension permet aux onglets nouvellement créés d'être mis au premier plan et de les placer en dernière position.\nElle permet également de sauvegarder et de restaurer les fenêtres et les onglets en cliquant sur le bouton de l'extension ou en utilisant le raccourci clavier Ctrl+Shift+e."
+      "message": "Amene les nouveaux onglets au premier plan et en dernière position, permet de sauvegarder et de restaurer les fenêtres."
    },
    "contextOpenBackground": {
       "description": "menu contextuel d'ouverture d'un onglet en arrière plan",

@@ -1,7 +1,7 @@
 {
    "desc": {
       "description": "beschrijving van de extensie",
-      "message": "Deze extensie zorgt ervoor dat nieuw gemaakte tabbladen de focus krijgen en plaatst ze op de laatste positie.\nHet maakt het ook mogelijk om vensters en tabbladen op te slaan en te herstellen door op de knop van de extensie te klikken of door de toetsenbordcombinatie Ctrl+Shift+e te gebruiken."
+      "message": "Breng nieuwe tabbladen naar voren en op de laatste positie, sta het toe om vensters op te slaan en te herstellen."
    },
    "contextOpenBackground": {
       "description": "contextmenu voor het openen van een tabblad op de achtergrond",
