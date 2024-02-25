@@ -31,6 +31,10 @@ export class BooleanSettings extends HTMLElement {
 					padding: .2rem;
 					margin: .2rem;
 				}
+				label > span {
+					display: inline-flex;
+					flex-wrap: nowrap;
+				}
 				color-svg:first-child {
 					opacity: 1;
 				}

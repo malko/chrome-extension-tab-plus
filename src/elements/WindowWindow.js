@@ -386,7 +386,7 @@ export class WindowSessionWindow extends WindowWindow {
 			const { id, tabs, groups, state, top, left, height, width, ...rest } = this.#winData
 			const groupTabs = {}
 			/** @type{import("../libs/index.js").WindowCreateData} */
-			let createData = { ...rest, state }
+			let createData = { ...rest }
 			if (state === "normal") {
 				createData = { ...createData, state, top, left, height, width }
 			}
