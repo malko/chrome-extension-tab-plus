@@ -15,6 +15,7 @@ export class BooleanSettings extends HTMLElement {
 		this.attachShadow({ mode: "open" })
 		const beforeSvg = this.getAttribute("beforeSvg")
 		const afterSvg = this.getAttribute("afterSvg")
+		const svgSizeAttr = this.hasAttribute("svgSize") ? ` size="${this.getAttribute("svgSize")}"` : ''
 		this.shadowRoot.innerHTML = `
 			<style>
 				:host, label {
@@ -49,15 +50,14 @@ export class BooleanSettings extends HTMLElement {
 				}
 			</style>
 			<label>
-				<t-msg>${msgId}</t-msg>${
-			!(beforeSvg || afterSvg)
+				<t-msg>${msgId}</t-msg>${!(beforeSvg || afterSvg)
 				? `<input-boolean name="${this.#key}"></input-boolean>`
 				: `<span>
-						${beforeSvg ? `<color-svg name="${beforeSvg}"></color-svg>` : ""}
+						${beforeSvg ? `<color-svg name="${beforeSvg}"${svgSizeAttr}></color-svg>` : ""}
 						<input-boolean name="${this.#key}"></input-boolean>
-						${afterSvg ? `<color-svg name="${afterSvg}"></color-svg>` : ""}
+						${afterSvg ? `<color-svg name="${afterSvg}"${svgSizeAttr}></color-svg>` : ""}
 					</span>`
-		}
+			}
 			</label>
 		`
 		this.#input = this.shadowRoot.querySelector("input-boolean")
