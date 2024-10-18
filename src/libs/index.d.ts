@@ -10,7 +10,7 @@ interface WindowCommonData {
 	left?: number
 }
 
-interface TabGroupData {
+export interface TabGroupData {
 	id: number
 	collapsed: boolean
 	color: chrome.tabGroups.ColorEnum
@@ -36,12 +36,12 @@ export interface TabData {
 	groupId?: number
 }
 
-interface WindowCreateData extends WindowCommonData {
+export interface WindowCreateData extends WindowCommonData {
 	id?: number
 	url?: string | string[]
 }
 
-interface WindowStoredData extends WindowCommonData {
+export interface WindowStoredData extends WindowCommonData {
 	id?: number
 	name?: string
 	tabs?: TabData[] | chrome.TabsTab[]

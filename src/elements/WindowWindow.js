@@ -1,6 +1,6 @@
 //@ts-check
 import { SVGs } from "../assets/svgs.js"
-import { saveWindow, deleteWindow, windowToStoredWindow } from "../libs/db.js"
+import { saveWindow, deleteWindow, updateSavedWindow } from "../libs/db.js"
 import htmlEntties from "../libs/htmlEntties.js"
 import { WindowTab } from "./WindowTab.js"
 
@@ -140,6 +140,26 @@ export class WindowWindow extends HTMLElement {
 					align-items: center;
 					white-space: nowrap;
 				}
+				.window-title > span:first-child {
+					overflow: hidden;
+				}
+
+				.window-name {
+					display: inline;
+					padding:.2em;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+					&:focus {
+						overflow: visible;
+					}
+				}
+				.window-name:empty:not(:focus) {
+					display: none;
+				}
+				.window-name:empty + .winwow-name-separator {
+					display: none;
+				}
 				.window-tabs {
 					display: flex;
 					flex-wrap: wrap;
@@ -196,14 +216,15 @@ export class WindowWindow extends HTMLElement {
 			<div class="window-title">
 				<span>
 					${windowData.incognito ? '<color-svg name="incognito"></color-svg>' : ""}
-					${windowData.name ? `<span>${windowData?.name} - </span>` : ""}
+					<span class="window-name">${windowData?.name || ''}</span>
+					<span class="winwow-name-separator"> - </span>
 					<t-msg msgId="tabCount${windowData.tabs.length > 1 ? "Plural" : ""}" params="${windowData.tabs.length}" ></t-msg>
 				</span>
 				<span class="window-actions">
 					${
-						//@ts-expect-error
-						this.constructor?.actionButtons
-					}
+			//@ts-expect-error
+			this.constructor?.actionButtons
+			}
 				</span>
 			</div>
 			<div class="window-tabs" id="window-tabs-container-${this._id}"><slot></slot></div>
@@ -212,36 +233,36 @@ export class WindowWindow extends HTMLElement {
 		windowData.tabs.forEach((tab) => {
 			const tabElmt = this.appendTab(tab)
 			if (tab.groupId > 0) {
-				;(groupTabs[tab.groupId] = groupTabs[tab.groupId] || []).push(tabElmt)
+				; (groupTabs[tab.groupId] = groupTabs[tab.groupId] || []).push(tabElmt)
 			}
 		})
 
-		// display groups info
-		;(async () => {
-			if (Object.keys(groupTabs).length > 0) {
-				let groupsData = []
-				// get groups info from windowData or from chrome.tabGroups
-				if (windowData.groups) {
-					groupsData = windowData.groups
-				} else {
-					groupsData = (await chrome.tabGroups.query({ windowId: windowData.id })).map((group) => {
-						const { color, title, id } = group
-						return { color: color, title, id }
+			// display groups info
+			; (async () => {
+				if (Object.keys(groupTabs).length > 0) {
+					let groupsData = []
+					// get groups info from windowData or from chrome.tabGroups
+					if (windowData.groups) {
+						groupsData = windowData.groups
+					} else {
+						groupsData = (await chrome.tabGroups.query({ windowId: windowData.id })).map((group) => {
+							const { color, title, id } = group
+							return { color: color, title, id }
+						})
+					}
+					//@ts-expect-error
+					groupsData.forEach(({ id, color, title }) => {
+						color in groupColors && (color = groupColors[color])
+						groupTabs[id].forEach((tabElmt, index) => {
+							if (index === 0) {
+								title && (tabElmt.dataset.groupTitle = title)
+								tabElmt.style.setProperty("--group-color", color)
+							}
+							tabElmt.style.boxShadow = `0 0 0 2px ${color}`
+						})
 					})
 				}
-				//@ts-expect-error
-				groupsData.forEach(({ id, color, title }) => {
-					color in groupColors && (color = groupColors[color])
-					groupTabs[id].forEach((tabElmt, index) => {
-						if (index === 0) {
-							title && (tabElmt.dataset.groupTitle = title)
-							tabElmt.style.setProperty("--group-color", color)
-						}
-						tabElmt.style.boxShadow = `0 0 0 2px ${color}`
-					})
-				})
-			}
-		})()
+			})()
 
 		//#region window actions handlers
 		if (this.tagName === "WINDOW-WINDOW") {
@@ -431,6 +452,36 @@ export class WindowSessionWindow extends WindowWindow {
 				window.dispatchEvent(new CustomEvent("tab+session-window-deleted", { detail: { windowId: this.#winData.id } }))
 				this.remove()
 			})
+		})
+		const nameContainer = /**@type HTMLElement*/(this.shadowRoot.querySelector(".window-name"))
+		const spaceOrEnterListener = (evt) => {
+			if (evt.ctrlKey || evt.shiftKey || evt.altKey) return
+			if (evt.key === " " || evt.key === "Enter") {
+				evt.preventDefault()
+				evt.stopPropagation()
+				if (evt.key === " ") {
+					document.execCommand("insertText", false, " ")
+				} else {
+					nameContainer.blur()
+				}
+			}
+		}
+		nameContainer.parentElement.addEventListener("click", () => {
+			nameContainer.contentEditable = "plaintext-only"
+			// for mozilla browsers only true is supported
+			if (!nameContainer.isContentEditable) { nameContainer.contentEditable = "true" }
+			// grab focus and listen for space key
+			if (document.activeElement !== nameContainer) {
+				nameContainer.focus()
+				nameContainer.addEventListener("keydown", spaceOrEnterListener)
+			}
+		})
+		nameContainer?.addEventListener("blur", () => {
+			nameContainer.contentEditable = "false"
+			nameContainer.removeEventListener("keydown", spaceOrEnterListener)
+			if (this.#winData.name === nameContainer.textContent) return
+			updateSavedWindow(this.#winData?.id, { name: nameContainer.textContent })
+				.then(() => { this.#winData.name = nameContainer.textContent })
 		})
 	}
 	connectedCallback() {

@@ -1,12 +1,15 @@
 //@ts-check
 const dbName = "windows-tabs-db"
 const dbVersion = 1
+
 /**
  * return a promise of a transaction resolution
- * @template T
  * @param {IDBTransaction} tx
- * @param {T extends ()=>unknown} resolver?
- * @returns {Promise<ReturnType<T>|void>}
+ * @param {()=>any} [resolver]
+ * @type {{
+ *  (tx:IDBTransaction):Promise<void>;
+ * 	<T>(tx:IDBTransaction, resolver:()=>T):Promise<T>;
+ * }}
  */
 const txPromise = (tx, resolver = void 0) => {
 	return new Promise((resolve, reject) => {
@@ -110,7 +113,7 @@ export const getSavedWindows = async () => {
 	const tx = db.transaction(["windows"], "readonly")
 	const windowsStore = tx.objectStore("windows")
 	const windowRequest = windowsStore.getAll()
-	return txPromise(tx, () => windowRequest.result)
+	return txPromise(tx, () => /**@type{import("./index").WindowStoredData[]}*/ (windowRequest.result))
 }
 
 export const getPartialTabDataFromUrl = async (/**@type {string}*/ url) => {
