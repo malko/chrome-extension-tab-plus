@@ -110,7 +110,13 @@
 	</header>
 	<label>
 		<input type="search" id="search" placeholder="msg:searchInputPlaceholder" autofocus>
-		<color-svg name="search" size="24px"></color-svg>
+		<boolean-settings
+			key="fuzzySearch"
+			msgId="sessionFuzzySearch"
+			beforeSvg="search"
+			afterSvg="fuzzySearch"
+			noLabel
+		></boolean-settings>
 	</label>
 	<div id="windowsActive"></div>
 	<div id="windowsSaved"></div>

@@ -51,6 +51,10 @@
       "description": "message de confirmation de suppression de fenêtre",
       "message": "Êtes-vous sûr de vouloir supprimer cette fenêtre sauvegardée ?"
    },
+   "sessionFuzzySearch": {
+      "description": "setting label",
+      "message": "Utiliser la recherche floue"
+   },
    "sessionCloseButton": {
       "description": "label du bouton close",
       "message": "Fermer cette page"

@@ -76,6 +76,13 @@ export const SVGs = {
 <path class="cls1" style="stroke-width:1.25" d="M6 8C5.5 10 7 12 9 12.4"/>
 </svg>`,
 
+	magnifyLightning: `${svg24}
+<defs><style>.cls1{${noFill}${roundStroke}stroke-width:2.25;}</style></defs>
+<path class="cls1" style="fill:var(--svg-color2, #cc5);stroke:var(--svg-color2, #cc5);stroke-width:1.05;" d="M20 1l-14 6l3 3l-8 5l11.5 -5l-3 -2.5l10.5 -6.5"/>
+<circle class="cls1" cx="9" cy="9" r="6"/>
+<path class="cls1" style="stroke-width:3.5" d="M14 14l5 5 "/>
+</svg>`,
+
 	maximize: `${svg24}
 <path
 	style="stroke-width:2px;${roundStroke}${noFill}"
@@ -169,6 +176,10 @@ export const SVGs = {
 
 	get search() {
 		return this.magnify
+	},
+
+	get fuzzySearch() {
+		return this.magnifyLightning
 	},
 
 	sun: `${svg24}

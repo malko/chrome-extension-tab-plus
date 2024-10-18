@@ -10,7 +10,8 @@ const activesContainer = /**@type{HTMLDivElement}*/ (document.querySelector("#wi
 const savedContainer = /**@type{HTMLDivElement}*/ (document.querySelector("#windowsSaved"))
 const { sessionTabId, prevActiveTabId } = await chrome.runtime.sendMessage({ type: "get-session-tab-ids" })
 const loadingSettings = await chrome.storage.local.get(["darkmode", "show-titles"])
-const searchInput = document.getElementById("search")
+const searchInput = /**@type {HTMLInputElement}*/(document.getElementById("search"))
+const searchMode = /** @type {HTMLInputElement}*/(document.querySelector("boolean-settings[key=fuzzySearch]"))
 
 bindPageActions()
 const grabFocus = () => {
@@ -69,6 +70,7 @@ loadingSettings["show-titles"] && rootElmt.classList.add("show-titles")
  * example: ```new RegExp(regSafeString`^${param}`, 'i')``
  */
 const escapeExpChars = (s) => s.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&")
+const escapeRegCharsWithStars = (s) => s.replace(/[.+\-?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*?")
 /** @returns {WindowTab[]} */
 const getTabsEl = ({ activeOnly = false, visibleOnly = false } = {}) =>
 	Array.from(document.querySelectorAll(`window-window${activeOnly ? "" : ", window-session-window"}`)).reduce(
@@ -78,16 +80,25 @@ const getTabsEl = ({ activeOnly = false, visibleOnly = false } = {}) =>
 		},
 		[]
 	)
-searchInput?.addEventListener("input", (evt) => {
-	//@ts-expect-error
-	const query = evt.target.value
-	const queryRegExp = new RegExp(query.split("").map(escapeExpChars).join("[\\s\\S]*"), "i")
+const performSearch = () => {
+	const query = searchInput.value
+	if (!query) {
+		getTabsEl().forEach((element) => element.classList.remove("hidden"))
+		relayout()
+		return
+	}
+	const isFuzzy = searchMode.value
+	const queryRegExp = isFuzzy
+		? new RegExp(query.split("").map(escapeExpChars).join(".*?"), "i")
+		: new RegExp(escapeRegCharsWithStars(query), "i")
 	getTabsEl().forEach((element) => {
 		const match = queryRegExp.test(element.tabData.title) || queryRegExp.test(element.tabData.url)
 		element.classList.toggle("hidden", !match)
 	})
 	relayout()
-})
+}
+searchInput?.addEventListener("input", (evt) => { performSearch() })
+searchMode.addEventListener("change", () => { searchInput.value && performSearch() })
 searchInput?.addEventListener(
 	"keydown",
 	keysHandler("ArrowDown|Enter", (evt) => getTabsEl({ activeOnly: true, visibleOnly: true })[0]?.focus(), {
@@ -95,6 +106,7 @@ searchInput?.addEventListener(
 		stopPropagation: true,
 	})
 )
+
 //#endregion search
 const debounced = (fn, delay = 250) => {
 	let lastExec = 0
@@ -158,7 +170,7 @@ const rerender = async (evt) => {
 		return
 	}
 	const getWinEl = () =>
-		/**@type{WindowWindow|null}*/ (document.querySelector(`window-window#window-${evtDetails.winId}`))
+		/**@type{WindowWindow|null}*/(document.querySelector(`window-window#window-${evtDetails.winId}`))
 	const getTabEl = () => getWinEl()?.querySelector(`window-tab#tab-${evtDetails.tabId}`)
 
 	switch (evtType) {
@@ -290,4 +302,4 @@ activesContainer.addEventListener("drop", (evt) => {
 		console.error(e)
 	}
 })
-export {}
+export { }

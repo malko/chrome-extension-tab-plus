@@ -51,6 +51,10 @@
       "description": "bevestig verwijdering vensterbericht",
       "message": "Weet je zeker dat je dit opgeslagen venster wilt verwijderen?"
    },
+   "sessionFuzzySearch": {
+      "description": "setting label",
+      "message": "Gebruik fuzzy search"
+   },
    "sessionCloseButton": {
       "description": "label van de sluitknop",
       "message": "Dit tabblad sluiten"

@@ -51,6 +51,10 @@
       "description": "confirm delete window message",
       "message": "Are you sure you want to delete this saved window?"
    },
+   "sessionFuzzySearch": {
+      "description": "setting label",
+      "message": "Use a fuzzy search"
+   },
    "sessionCloseButton": {
       "description": "close button label",
       "message": "Close this page"
