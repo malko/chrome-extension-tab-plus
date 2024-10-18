@@ -17,6 +17,7 @@
 	--input-boolean-bg: #ccc;
 	--header-bg: #f5f5f5;
 	--saved-bg: #eee;
+	--svg-color2: #f5a91b;
 	/* darkmode media query */
 	&.dark {
 		--bg: #333;

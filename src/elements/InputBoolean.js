@@ -23,6 +23,7 @@ export class InputBoolean extends HTMLElement {
 				--height: var(--input-boolean-height, 1rem);
 				cursor: pointer;
 				display:inline-flex;
+				align-self:center;
 			}
 			:host([disabled]){
 				opacity: 0.6;
