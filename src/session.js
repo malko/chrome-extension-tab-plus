@@ -21,6 +21,24 @@ const grabFocus = () => {
 			.then((tab) => chrome.windows.update(tab.windowId, { focused: true }))
 			.catch(console.error)
 }
+const debounced = (fn, delay = 250) => {
+	let lastExec = 0
+	let timer = 0
+	return (...args) => {
+		const now = Date.now()
+		const elapsed = now - lastExec
+		if (elapsed < delay) {
+			clearTimeout(timer)
+			timer = setTimeout(() => {
+				lastExec = now
+				fn(...args)
+			}, delay - elapsed)
+		} else {
+			lastExec = now
+			fn(...args)
+		}
+	}
+}
 const relayout = () => {
 	;[...activesContainer.children, ...savedContainer.children].forEach((element) => {
 		//@ts-expect-error
@@ -69,8 +87,8 @@ loadingSettings["show-titles"] && rootElmt.classList.add("show-titles")
  * tagged template string to safely escape parameters when you compose your regexp strings
  * example: ```new RegExp(regSafeString`^${param}`, 'i')``
  */
-const escapeExpChars = (s) => s.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&")
-const escapeRegCharsWithStars = (s) => s.replace(/[.+\-?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*?")
+const escapeExpChars = (s) => s.replace(/[.*+?^${}()|[\]\\-]/g, "\\$&")
+const escapeRegCharsWithStars = (s) => s.replace(/[.+?^${}()|[\]\\-]/g, "\\$&").replace(/\*/g, ".*?")
 /** @returns {WindowTab[]} */
 const getTabsEl = ({ activeOnly = false, visibleOnly = false } = {}) =>
 	Array.from(document.querySelectorAll(`window-window${activeOnly ? "" : ", window-session-window"}`)).reduce(
@@ -92,12 +110,12 @@ const performSearch = () => {
 		? new RegExp(query.split("").map(escapeExpChars).join(".*?"), "i")
 		: new RegExp(escapeRegCharsWithStars(query), "i")
 	getTabsEl().forEach((element) => {
-		const match = queryRegExp.test(element.tabData.title) || queryRegExp.test(element.tabData.url)
+		const match = queryRegExp.test(element.tabData.title + element.tabData.url)
 		element.classList.toggle("hidden", !match)
 	})
 	relayout()
 }
-searchInput?.addEventListener("input", (evt) => { performSearch() })
+searchInput?.addEventListener("input", debounced((evt) => { performSearch() }, 500))
 searchMode.addEventListener("change", () => { searchInput.value && performSearch() })
 searchInput?.addEventListener(
 	"keydown",
@@ -108,24 +126,7 @@ searchInput?.addEventListener(
 )
 
 //#endregion search
-const debounced = (fn, delay = 250) => {
-	let lastExec = 0
-	let timer = 0
-	return (...args) => {
-		const now = Date.now()
-		const elapsed = now - lastExec
-		if (elapsed < delay) {
-			clearTimeout(timer)
-			timer = setTimeout(() => {
-				lastExec = now
-				fn(...args)
-			}, delay - elapsed)
-		} else {
-			lastExec = now
-			fn(...args)
-		}
-	}
-}
+
 const isValidWindowType = (/**@type{{type?:chrome.windows.windowTypeEnum}}*/ { type }) =>
 	type === "normal" || type === "popup"
 const renderActiveWindows = debounced(async () => {
