@@ -6,29 +6,28 @@
 <style type="text/css">
 	@import url("styles.css");
 	#windowsActive, #windowsSaved{
-		padding: 2rem 1rem 1rem 1rem;
-		margin: 1rem;
-		border-radius: var(--radius);
 		position: relative;
-		display:grid;
-		grid-gap:1.5rem 1rem;
-		grid-template-columns: repeat(auto-fill, minmax(250px, 350px));
-		grid-auto-rows: 10px;
-		&:before{
-			content: "Active Windows";
+		margin: 1rem;
+		padding: 1rem;
+		border-radius: var(--radius);
+		display: flex;
+		flex-direction: column;
+		> .container {
+			display:grid;
+			grid-gap:1.5rem 1rem;
+			grid-template-columns: repeat(auto-fill, minmax(250px, 350px));
+			grid-auto-rows: 10px;
+		}
+		> t-msg {
 			display: block;
 			font-weight: bold;
-			position:absolute;
-			top:0;
-			padding:1rem;
+			flex-grow: 1;
+			padding:0.2rem 0.5rem;
 		}
 	}
 	#windowsSaved {
 		background-color: var(--saved-bg);
 		border: 1px dashed var(--border-color);
-		&::before{
-			content: "Saved Windows";
-		}
 	}
 	#settings {
 		display: flex;
@@ -120,8 +119,14 @@
 			svgSize="20px"
 		></boolean-settings>
 	</label>
-	<div id="windowsActive"></div>
-	<div id="windowsSaved"></div>
+	<div id="windowsActive">
+		<t-msg>Active windows</t-msg>
+		<div class="container"></div>
+	</div>
+	<div id="windowsSaved">
+		<t-msg>Saved windows</t-msg>
+		<div class="container"></div>
+	</div>
 	<page-footer></page-footer>
 	<script type="module" src="./session.js"></script>
 </body>

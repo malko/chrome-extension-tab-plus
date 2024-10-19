@@ -293,6 +293,7 @@ export class WindowWindow extends HTMLElement {
 				win.tabs = win.tabs.filter((tab) => tab.id !== sessionTabId)
 				saveWindow(win).then(() => {
 					window.dispatchEvent(new CustomEvent("tab+session-window-saved"))
+					evt.ctrlKey && this.close()
 				})
 			})
 			//#endregion window actions handlers
@@ -401,10 +402,10 @@ export class WindowSessionWindow extends WindowWindow {
 	constructor(/**@type{import("../libs/index.js").WindowStoredData}*/ windowData) {
 		super(windowData)
 		this.#winData = windowData
-		this.#restoreHandler = prevDflt(async () => {
+		this.#restoreHandler = prevDflt(async (/**@type {MouseEvent}*/evt) => {
 			const settings = await chrome.storage.local.get(["restore-discarded"])
 			const restoreActive = !settings["restore-discarded"]
-			const { id, tabs, groups, state, top, left, height, width, ...rest } = this.#winData
+			const { id, tabs, groups, state, top, left, height, width, name, ...rest } = this.#winData
 			const groupTabs = {}
 			/** @type{import("../libs/index.js").WindowCreateData} */
 			let createData = { ...rest }
@@ -441,6 +442,14 @@ export class WindowSessionWindow extends WindowWindow {
 					})
 					// remove the empty new tab
 					tabIdToRemove && chrome.tabs.remove(tabIdToRemove)
+				})
+				.then(() => {
+					if (evt.ctrlKey) {
+						deleteWindow(this.#winData.id).then(() => {
+							window.dispatchEvent(new CustomEvent("tab+session-window-deleted", { detail: { windowId: id } }))
+							this.remove()
+						})
+					}
 				})
 		})
 		this.#deleteHandler = prevDflt(async () => {

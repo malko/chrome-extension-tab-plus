@@ -28,5 +28,5 @@
    "name": "Tab+",
    "options_page": "options.html",
    "permissions": [ "tabs", "tabGroups", "contextMenus", "storage" ],
-   "version": "0.3.0"
+   "version": "0.4.0"
 }

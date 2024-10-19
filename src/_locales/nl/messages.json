@@ -79,7 +79,7 @@
    },
    "windowActionSave": {
       "description": "actie op venstertitel",
-      "message": "Venster opslaan"
+      "message": "Venster opslaan (+Ctrl om tegelijkertijd het venster te sluiten)"
    },
    "windowActionNewTab": {
       "description": "actie op venstertitel",
@@ -91,7 +91,7 @@
    },
    "windowActionRestore": {
       "description": "actie op venstertitel",
-      "message": "Venster herstellen"
+      "message": "Venster herstellen (+Ctrl om de opgeslagen sessie tegelijkertijd te verwijderen)"
    },
    "windowActionToggleMinimize": {
       "description": "actie op venstertitel",

@@ -79,7 +79,7 @@
    },
    "windowActionSave": {
       "description": "action sur titre de fenêtre",
-      "message": "Sauvegarder la fenêtre"
+      "message": "Sauvegarder la fenêtre (+Ctrl pour fermer la fenêtre en même temps)"
    },
    "windowActionNewTab": {
       "description": "action sur titre de fenêtre",
@@ -91,7 +91,7 @@
    },
    "windowActionRestore": {
       "description": "action sur titre de fenêtre",
-      "message": "Restaurer la fenêtre"
+      "message": "Restaurer la fenêtre (+Ctrl pour supprimer la session enregistrée en même temps)"
    },
    "windowActionToggleMinimize": {
       "description": "action sur titre de fenêtre",

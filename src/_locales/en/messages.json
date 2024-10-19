@@ -79,7 +79,7 @@
    },
    "windowActionSave": {
       "description": "window action title",
-      "message": "Save window"
+      "message": "Save window (+Ctrl to close window at the same time)"
    },
    "windowActionNewTab": {
       "description": "window action title",
@@ -91,7 +91,7 @@
    },
    "windowActionRestore": {
       "description": "window action title",
-      "message": "Restore window"
+      "message": "Restore window (+Ctrl to remove saved session at the same time)"
    },
    "windowActionToggleMinimize": {
       "description": "window action title",

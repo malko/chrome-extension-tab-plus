@@ -6,8 +6,8 @@ import { getSavedWindows } from "./libs/db.js"
 import { bindPageActions } from "./libs/bindPageActions.js"
 import { keyMap, keysHandler } from "./libs/keyMaps.js"
 const rootElmt = document.querySelector("html")
-const activesContainer = /**@type{HTMLDivElement}*/ (document.querySelector("#windowsActive"))
-const savedContainer = /**@type{HTMLDivElement}*/ (document.querySelector("#windowsSaved"))
+const activesContainer = /**@type{HTMLDivElement}*/ (document.querySelector("#windowsActive > .container"))
+const savedContainer = /**@type{HTMLDivElement}*/ (document.querySelector("#windowsSaved > .container"))
 const { sessionTabId, prevActiveTabId } = await chrome.runtime.sendMessage({ type: "get-session-tab-ids" })
 const loadingSettings = await chrome.storage.local.get(["darkmode", "show-titles"])
 const searchInput = /**@type {HTMLInputElement}*/(document.getElementById("search"))
