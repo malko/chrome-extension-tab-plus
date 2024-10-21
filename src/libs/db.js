@@ -55,10 +55,14 @@ const tabToTabStoredData = ({
 	pendingUrl = undefined,
 	status = undefined,
 }) => {
+	if (status !== "complete" && pendingUrl) {
+		url = pendingUrl || url
+	}
+	url = url.replace(/^(chrome-extension:\/\/[^\/]+?\/discarded.html#)+/, "")
 	return {
 		index,
 		title,
-		url: status !== "complete" && pendingUrl ? pendingUrl || url : url,
+		url,
 		pinned,
 		highlighted,
 		active,
@@ -113,7 +117,7 @@ export const getSavedWindows = async () => {
 	const tx = db.transaction(["windows"], "readonly")
 	const windowsStore = tx.objectStore("windows")
 	const windowRequest = windowsStore.getAll()
-	return txPromise(tx, () => /**@type{import("./index").WindowStoredData[]}*/ (windowRequest.result))
+	return txPromise(tx, () => /**@type{import("./index").WindowStoredData[]}*/(windowRequest.result))
 }
 
 export const getPartialTabDataFromUrl = async (/**@type {string}*/ url) => {
