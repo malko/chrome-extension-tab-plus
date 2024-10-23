@@ -55,6 +55,10 @@
       "description": "setting label",
       "message": "Gebruik fuzzy search"
    },
+   "sessionHighlightDuplicates": {
+      "description": "setting label",
+      "message": "Markeer dubbele tabbladen"
+   },
    "sessionCloseButton": {
       "description": "label van de sluitknop",
       "message": "Dit tabblad sluiten"

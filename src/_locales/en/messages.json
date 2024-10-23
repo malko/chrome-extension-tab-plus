@@ -55,6 +55,10 @@
       "description": "setting label",
       "message": "Use a fuzzy search"
    },
+   "sessionHighlightDuplicates": {
+      "description": "setting label",
+      "message": "Highlight duplicate tabs"
+   },
    "sessionCloseButton": {
       "description": "close button label",
       "message": "Close this page"

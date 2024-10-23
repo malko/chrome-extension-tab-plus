@@ -67,6 +67,21 @@
 			border-radius: var(--radius);
 		}
 	}
+	window-tab.duplicate {
+		&::after{
+			position:absolute;
+			content:"×2";
+			top:-.25em;
+			right:-.25em;
+			font-size:.7rem;
+			font-weight: bold;
+			padding:0 .1em;
+			background-color: var(--svg-color2, red);
+			border-radius: .2em;
+			color:black;
+			z-index:1;
+		}
+	}
 </style>
 <script type="module" src="./elements/TMsg.js"></script>
 <script type="module" src="./elements/ColorSvg.js"></script>
@@ -96,6 +111,12 @@
 				msgId="generalDarkMode"
 				beforeSvg="sun"
 				afterSvg="moon"
+				noLabel
+			></boolean-settings>
+			<boolean-settings
+				key="highlight-duplicates"
+				msgId="sessionHighlightDuplicates"
+				afterSvg="highlightDuplicates"
 				noLabel
 			></boolean-settings>
 			<div class="actions-new">

@@ -5,6 +5,7 @@ import { SVGs } from "./assets/svgs.js"
 import { getSavedWindows } from "./libs/db.js"
 import { bindPageActions } from "./libs/bindPageActions.js"
 import { keyMap, keysHandler } from "./libs/keyMaps.js"
+import { debounced } from "./libs/debounced.js"
 const rootElmt = document.querySelector("html")
 const activesContainer = /**@type{HTMLDivElement}*/ (document.querySelector("#windowsActive > .container"))
 const savedContainer = /**@type{HTMLDivElement}*/ (document.querySelector("#windowsSaved > .container"))
@@ -12,6 +13,8 @@ const { sessionTabId, prevActiveTabId } = await chrome.runtime.sendMessage({ typ
 const loadingSettings = await chrome.storage.local.get(["darkmode", "show-titles"])
 const searchInput = /**@type {HTMLInputElement}*/(document.getElementById("search"))
 const searchMode = /** @type {HTMLInputElement}*/(document.querySelector("boolean-settings[key=fuzzySearch]"))
+const duplicateTabs = /** @type {HTMLInputElement}*/(document.querySelector("boolean-settings[key=highlight-duplicates]"))
+// const duplicateTabs = /** @type {HTMLInputElement}*/(document.querySelector("color-svg[name=highlightDuplicates]"))
 
 bindPageActions()
 const grabFocus = () => {
@@ -21,24 +24,7 @@ const grabFocus = () => {
 			.then((tab) => chrome.windows.update(tab.windowId, { focused: true }))
 			.catch(console.error)
 }
-const debounced = (fn, delay = 250) => {
-	let lastExec = 0
-	let timer = 0
-	return (...args) => {
-		const now = Date.now()
-		const elapsed = now - lastExec
-		if (elapsed < delay) {
-			clearTimeout(timer)
-			timer = setTimeout(() => {
-				lastExec = now
-				fn(...args)
-			}, delay - elapsed)
-		} else {
-			lastExec = now
-			fn(...args)
-		}
-	}
-}
+
 const relayout = () => {
 	;[...activesContainer.children, ...savedContainer.children].forEach((element) => {
 		//@ts-expect-error
@@ -87,11 +73,11 @@ loadingSettings["show-titles"] && rootElmt.classList.add("show-titles")
  * tagged template string to safely escape parameters when you compose your regexp strings
  * example: ```new RegExp(regSafeString`^${param}`, 'i')``
  */
-const escapeExpChars = (s) => s.replace(/[.*+?^${}()|[\]\\-]/g, "\\$&")
-const escapeRegCharsWithStars = (s) => s.replace(/[.+?^${}()|[\]\\-]/g, "\\$&").replace(/\*/g, ".*?")
+const escapeExpChars = (/**@type {string}*/s) => s.replace(/[.*+?^${}()|[\]\\-]/g, "\\$&")
+const escapeRegCharsWithStars = (/**@type {string}*/s) => s.replace(/[.+?^${}()|[\]\\-]/g, "\\$&").replace(/\*/g, ".*?")
 /** @returns {WindowTab[]} */
-const getTabsEl = ({ activeOnly = false, visibleOnly = false } = {}) =>
-	Array.from(document.querySelectorAll(`window-window${activeOnly ? "" : ", window-session-window"}`)).reduce(
+const getTabsEl = ({ activeWindowOnly = false, visibleOnly = false } = {}) =>
+	Array.from(document.querySelectorAll(`window-window${activeWindowOnly ? "" : ", window-session-window"}`)).reduce(
 		(acc, el) => {
 			acc.push(...el.querySelectorAll(`window-tab${visibleOnly ? ":not(.hidden)" : ""}`))
 			return acc
@@ -119,7 +105,7 @@ searchInput?.addEventListener("input", debounced((evt) => { performSearch() }, 5
 searchMode.addEventListener("change", () => { searchInput.value && performSearch() })
 searchInput?.addEventListener(
 	"keydown",
-	keysHandler("ArrowDown|Enter", (evt) => getTabsEl({ activeOnly: true, visibleOnly: true })[0]?.focus(), {
+	keysHandler("ArrowDown|Enter", (evt) => getTabsEl({ activeWindowOnly: true, visibleOnly: true })[0]?.focus(), {
 		preventDefault: true,
 		stopPropagation: true,
 	})
@@ -127,11 +113,31 @@ searchInput?.addEventListener(
 
 //#endregion search
 
+//#region duplicate tabs
+const discardedUrlExp = new RegExp(`^(chrome-extension:\/\/[^/]+/discarded.html#)+`)
+const discardedUrlCleaner = (/**@type {string}*/url) => url.replace(discardedUrlExp, "")
+/** highlight duplicate tabs if duplicateTabs settings is on */
+const highlightDuplicateTabs = debounced(async () => {
+	const tabs = getTabsEl({ activeWindowOnly: true, visibleOnly: false })
+	const urls = new Map()
+	tabs.forEach((tab) => {
+		const url = discardedUrlCleaner(tab.tabData.url)
+		urls.set(url, (urls.get(url) || 0) + 1)
+	})
+	tabs.forEach((tab) => {
+		tab.classList.toggle("duplicate", urls.get(discardedUrlCleaner(tab.tabData.url)) > 1)
+	})
+})
+duplicateTabs.addEventListener("change", () => {
+	duplicateTabs.checked ? highlightDuplicateTabs() : document.querySelectorAll("window-tab.duplicate").forEach((el) => el.classList.remove("duplicate"))
+})
+//#endregion duplicate tabs
+
 const isValidWindowType = (/**@type{{type?:chrome.windows.windowTypeEnum}}*/ { type }) =>
 	type === "normal" || type === "popup"
 const renderActiveWindows = debounced(async () => {
 	activesContainer.innerHTML = ""
-	await chrome.windows
+	return chrome.windows
 		.getAll({ populate: true })
 		.then((windows) => {
 			windows.forEach((win) => {
@@ -148,7 +154,7 @@ const renderActiveWindows = debounced(async () => {
 })
 const renderSavedWindows = debounced(async () => {
 	savedContainer.innerHTML = ""
-	await getSavedWindows()
+	return getSavedWindows()
 		.then((windows) => {
 			windows.forEach((win) => {
 				const winEl = new WindowSessionWindow(win)
@@ -159,8 +165,12 @@ const renderSavedWindows = debounced(async () => {
 })
 
 const render = async ({ type: evtType, ...evtDetails }) => {
-	renderActiveWindows()
-	renderSavedWindows()
+	await Promise.all([renderActiveWindows(), renderSavedWindows()])
+	relayoutAndHighlightDuplicates()
+}
+
+const relayoutAndHighlightDuplicates = () => {
+	duplicateTabs.checked && highlightDuplicateTabs()
 	relayout()
 }
 
@@ -178,16 +188,16 @@ const rerender = async (evt) => {
 		case "window-create":
 			// if the window is a popup or not a normal window, ignore it
 			if (!isValidWindowType(evtDetails)) return
-			return renderActiveWindows()
+			return renderActiveWindows().then(() => { relayout() })
 		case "window-remove": {
 			const winEl = getWinEl()
-			winEl ? winEl.remove() : renderActiveWindows()
-			return relayout()
+			await (winEl ? winEl.remove() : renderActiveWindows())
+			return relayoutAndHighlightDuplicates()
 		}
 		case "window-focus": {
 			if (evtDetails.winId === -1) return
 			const winEl = getWinEl()
-			if (!winEl) return renderActiveWindows()
+			if (!winEl) return renderActiveWindows().then(relayoutAndHighlightDuplicates)
 			document.querySelector("window-window.focused")?.classList.remove("focused")
 			return winEl?.classList.add("focused")
 		}
@@ -195,7 +205,7 @@ const rerender = async (evt) => {
 			if (evtDetails.tabId === sessionTabId) return
 			const tabEl = getTabEl()
 			if (!tabEl) {
-				return renderActiveWindows()
+				return renderActiveWindows().then(relayoutAndHighlightDuplicates)
 			}
 			tabEl.parentNode.querySelectorAll("window-tab.active").forEach((el) => el.classList.remove("active"))
 			return tabEl.classList.add("active")
@@ -204,30 +214,31 @@ const rerender = async (evt) => {
 		case "tab-remove": {
 			const tabEl = getTabEl()
 			tabEl ? tabEl.remove() : renderActiveWindows()
-			return relayout()
+			return relayoutAndHighlightDuplicates()
 		}
 		case "tab-update": {
 			const tabEl = getTabEl()
 			if (tabEl && evtDetails.tab && !evtDetails.groupId) {
-				return tabEl.replaceWith(new WindowTab(evtDetails.tab))
+				tabEl.replaceWith(new WindowTab(evtDetails.tab))
 			} else {
-				return renderActiveWindows()
+				await renderActiveWindows()
 			}
+			return duplicateTabs.checked && highlightDuplicateTabs()
 		}
 		case "tab-attached": {
 			const winEl = getWinEl()
 			const tab = await chrome.tabs.get(evtDetails.tabId)
-			winEl && tab ? winEl.appendTab(tab) : renderActiveWindows()
-			return relayout()
+			await (winEl && tab ? winEl.appendTab(tab) : renderActiveWindows())
+			return relayoutAndHighlightDuplicates()
 		}
 		case "tab-create": {
 			const winEl = getWinEl()
 			winEl ? winEl.appendTab(evtDetails.tab) : renderActiveWindows()
-			return relayout()
+			return relayoutAndHighlightDuplicates()
 		}
 		case "tab-move": {
 			const tabEl = getTabEl()
-			if (!tabEl) return renderActiveWindows()
+			if (!tabEl) return renderActiveWindows().then(relayoutAndHighlightDuplicates)
 			const { fromIndex, toIndex } = evtDetails.moveInfo
 			if (toIndex === 0) {
 				tabEl.parentNode.prepend(tabEl)
@@ -238,7 +249,7 @@ const rerender = async (evt) => {
 				// move to the left
 				tabEl.parentNode.insertBefore(tabEl, tabEl.parentNode.children[toIndex])
 			}
-			return relayout()
+			return relayoutAndHighlightDuplicates()
 		}
 		case "tab+session-window-saved":
 			renderSavedWindows()
@@ -248,6 +259,14 @@ const rerender = async (evt) => {
 	}
 	render({ type: evtType, ...evtDetails })
 }
+
+// silence debounced errors
+window.addEventListener("unhandledrejection", (evt) => {
+	const { name, message } = evt.reason || {}
+	if (name === "AbortError" && message === "Debounced") {
+		evt.preventDefault()
+	}
+})
 
 render({ type: "init" })
 chrome.windows.onCreated.addListener((win) => rerender({ type: "window-create", winId: win.id }))
