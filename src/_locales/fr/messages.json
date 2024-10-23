@@ -97,6 +97,10 @@
       "description": "action sur titre de fenêtre",
       "message": "Restaurer la fenêtre (+Ctrl pour supprimer la session enregistrée en même temps)"
    },
+   "windowActionRestoreIncognito": {
+      "description": "window action title",
+      "message": "Restaurer la fenêtre en mode normal (pas en navigation privée)"
+   },
    "windowActionToggleMinimize": {
       "description": "action sur titre de fenêtre",
       "message": "Basculer l'état minimisé de la fenêtre"

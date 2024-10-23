@@ -97,6 +97,10 @@
       "description": "actie op venstertitel",
       "message": "Venster herstellen (+Ctrl om de opgeslagen sessie tegelijkertijd te verwijderen)"
    },
+   "windowActionRestoreIncognito": {
+      "description": "window action title",
+      "message": "Venster herstellen in normale modus (niet incognito)"
+   },
    "windowActionToggleMinimize": {
       "description": "actie op venstertitel",
       "message": "Minimaliseer/Maximaliseer venster"

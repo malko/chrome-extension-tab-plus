@@ -402,10 +402,14 @@ export class WindowSessionWindow extends WindowWindow {
 	constructor(/**@type{import("../libs/index.js").WindowStoredData}*/ windowData) {
 		super(windowData)
 		this.#winData = windowData
+		if (windowData.incognito) { // add notice that we won't preserve incognito mode
+			this.shadowRoot.querySelector(".window-restore")?.setAttribute("title", chrome.i18n.getMessage("windowActionRestoreIncognito"))
+		}
 		this.#restoreHandler = prevDflt(async (/**@type {MouseEvent}*/evt) => {
 			const settings = await chrome.storage.local.get(["restore-discarded"])
 			const restoreActive = !settings["restore-discarded"]
-			const { id, tabs, groups, state, top, left, height, width, name, ...rest } = this.#winData
+			// for now we remove the incognito flag as it is not well handled for tabs creation
+			const { id, tabs, groups, state, top, left, height, width, name, incognito, ...rest } = this.#winData
 			const groupTabs = {}
 			/** @type{import("../libs/index.js").WindowCreateData} */
 			let createData = { ...rest }

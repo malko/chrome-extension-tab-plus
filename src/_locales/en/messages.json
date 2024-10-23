@@ -97,6 +97,10 @@
       "description": "window action title",
       "message": "Restore window (+Ctrl to remove saved session at the same time)"
    },
+   "windowActionRestoreIncognito": {
+      "description": "window action title",
+      "message": "Restore window in normal mode (not incognito)"
+   },
    "windowActionToggleMinimize": {
       "description": "window action title",
       "message": "Toggle window minimize state"
