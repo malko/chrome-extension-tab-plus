@@ -153,12 +153,20 @@ export class WindowWindow extends HTMLElement {
 					&:focus {
 						overflow: visible;
 					}
-				}
-				.window-name:empty:not(:focus) {
-					display: none;
-				}
-				.window-name:empty + .winwow-name-separator {
-					display: none;
+					&[contentEditable="plaintext-only"], &[contentEditable="true"]{
+						&:empty {
+							display: inline !important; 
+							+ .winwow-name-separator {
+								display:inline;
+							}
+						}
+					}
+					&:empty{
+						display: none;
+						+ .winwow-name-separator {
+							display: none;
+						}	
+					}
 				}
 				.window-tabs {
 					display: flex;
